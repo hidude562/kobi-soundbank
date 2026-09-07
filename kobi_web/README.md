@@ -21,7 +21,7 @@ The player fetches the bank over HTTP from a folder that holds `GM/manifest.json
 (`kobi_slim/` or `kobi_ogg/` here).  Serve the repository root so both are reachable:
 
 ```
-cd /home/nathan/kobi_soundbank
+cd kobi-soundbank                    # the repository root
 python3 -m http.server 8080
 # http://localhost:8080/kobi_web/            -> slim bank (24 MB)
 # http://localhost:8080/kobi_web/?bank=../kobi_ogg/   -> compressed bank (130 MB)

@@ -78,6 +78,6 @@ silence are stopped; polyphony is capped by stealing the voice that was about to
 ## Serve
 
 ```
-python3 kobi_web/test/rangeserver.py 8080        # from /home/nathan/kobi_soundbank
+python3 kobi_web/test/rangeserver.py 8080        # from the repository root (or: make serve)
 # http://localhost:8080/kobi_web/sched/
 ```
