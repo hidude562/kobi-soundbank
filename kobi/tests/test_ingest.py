@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import soundfile as sf
 
+from kobi import paths
 from kobi.ingest import (default_view, load_folder, load_sfz, note_to_midi, parse_name, parse_sfz)
 
 
@@ -103,7 +104,7 @@ def test_folder_reader_spreads_keys_velocities_and_rr(tmp_path):
     assert len(default_view(inst, release=True)) == 1
 
 
-@pytest.mark.skipif(not os.path.isdir('/home/nathan/kobi_soundbank/uncompressed/FreePats'), reason='sources not present')
+@pytest.mark.skipif(not os.path.isdir(os.path.join(paths.SOURCES, 'FreePats')), reason='sample sources not pulled (see SOURCES.md)')
 def test_real_sources_smoke():
     from kobi.gm_map import PROGRAMS
     from kobi.ingest import load_candidate
