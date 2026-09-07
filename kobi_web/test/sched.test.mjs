@@ -6,7 +6,7 @@ import { SliceLoader, PRIORITY } from '../sched/kobi-loader.js';
 import { compileSong } from '../sched/kobi-song.js';
 import { parseMidi } from '../kobi-midi.js';
 
-const PACK = '/home/nathan/kobi_soundbank/kobi_ogg/056_Trumpet/pack.ogg';
+const PACK = new URL('../../kobi_ogg/056_Trumpet/pack.ogg', import.meta.url).pathname;   // a built bank, if present
 
 test('oggCrc reproduces the CRC stored in real pages; spliceOgg renumbers and flags EOS', { skip: !existsSync(PACK) }, () => {
   const u8 = new Uint8Array(readFileSync(PACK));
