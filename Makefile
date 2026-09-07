@@ -17,7 +17,7 @@ FULL = kobi_ogg kobi_ogg_lite kobi_ogg_lite25
 DERIVED = kobi_slim kobi_slim_lite kobi_slim_lite25 kobi_ultra kobi_ultra_hifi kobi_ultra_hifi_pf
 ALL = $(FULL) $(DERIVED)
 
-.PHONY: all deps test banks finish derive index demos web-test serve clean-outputs
+.PHONY: all deps test banks finish derive index demos web-test serve clean-outputs clean-caches
 
 all: banks finish derive index
 
@@ -71,6 +71,13 @@ web-test:
 serve:
 	$(PY) kobi_web/test/rangeserver.py 8080 $(CURDIR)
 
-# rendered demos and auditions are regenerable; the banks are not deleted
+# rendered audio is regenerable; the banks, and demo/GM + demo/sfz (the maps `make banks` reads), stay
 clean-outputs:
-	rm -rf renders renders_* demo demo_* logs
+	rm -rf renders renders_* demo_bank demo_audition demo_levelled logs
+	find demo -name '*.wav' -delete 2>/dev/null || true
+	rm -rf demo/programs
+
+# the lossless per-note caches inside the compressed banks: only `derive` needs them, and without
+# them it re-packs from the Ogg instead, costing a second lossy generation
+clean-caches:
+	rm -rf kobi_ogg/.pcm kobi_ogg_lite/.pcm kobi_ogg_lite25/.pcm
