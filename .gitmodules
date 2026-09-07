@@ -1,0 +1,3 @@
+[submodule "vendor/sfz_compressor"]
+	path = vendor/sfz_compressor
+	url = http://localhost:3000/hidude/sfz-compressor.git

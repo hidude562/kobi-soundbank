@@ -1,0 +1,20 @@
+# sample sources and their archives (see SOURCES.md for how to pull them)
+uncompressed/
+archives/
+midi/
+
+# built banks and everything rendered from them
+kobi_ogg*/
+kobi_slim*/
+kobi_ultra*/
+renders*/
+demo/
+demo_*/
+*.wav
+.pcm/
+
+# scratch
+logs/
+__pycache__/
+.pytest_cache/
+*.log

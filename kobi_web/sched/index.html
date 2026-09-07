@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kobi scheduler</title>
+<style>
+  :root { --bg: #16181d; --panel: #1f2229; --fg: #e8e6e1; --muted: #8a8f99; --accent: #e0a458; --line: #2c3038; --ok: #6fbf73; --warn: #d9534f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, sans-serif; }
+  header { padding: 18px 24px 8px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .muted { color: var(--muted); }
+  main { padding: 8px 24px 24px; display: grid; gap: 16px; max-width: 1100px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .panel h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  button { background: var(--accent); color: #1a1a1a; border: 0; border-radius: 6px; padding: 7px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+  button[disabled] { opacity: 0.45; cursor: default; }
+  button.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  canvas { width: 100%; height: 28px; display: block; border-radius: 4px; background: #101216; }
+  dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 16px; margin: 0; }
+  dt { color: var(--muted); font-size: 12px; } dd { margin: 0; font-variant-numeric: tabular-nums; }
+  select, input[type=file] { font: inherit; color: var(--fg); background: #101216; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  .log { color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; white-space: pre-wrap; max-height: 140px; overflow: auto; }
+</style>
+</head>
+<body>
+<header><h1>kobi scheduler</h1><span class="muted">schedule-only playback; every note's sample is fetched by byte range when the song needs it</span></header>
+<main>
+  <section class="panel">
+    <h2>Song</h2>
+    <div class="row">
+      <select id="bank">
+        <option value="../../kobi_ultra_hifi_pf/">ultra hifi pf · 2.6 MB</option>
+        <option value="../../kobi_ultra/">ultra · 6 MB</option>
+        <option value="../../kobi_slim/" selected>slim · 24 MB</option>
+        <option value="../../kobi_ogg/">full · 90 MB</option>
+      </select>
+      <input type="file" id="file" accept=".mid,.midi,audio/midi">
+      <button id="play" disabled>Play</button>
+      <button id="pause" class="ghost" disabled>Pause</button>
+      <button id="stop" class="ghost" disabled>Stop</button>
+      <span class="muted" id="info"></span>
+    </div>
+    <input type="range" id="pos" min="0" max="1" step="0.1" value="0" disabled>
+    <canvas id="ready" height="28"></canvas>
+    <div class="muted" style="font-size:12px;margin-top:4px">readiness per second of the song: <span style="color:var(--ok)">■</span> decoded <span style="color:var(--accent)">■</span> fetched <span style="color:#555">■</span> pending · the white line is the playhead</div>
+  </section>
+  <section class="panel">
+    <h2>Loader</h2>
+    <dl id="stats"></dl>
+  </section>
+  <section class="panel"><h2>Log</h2><div class="log" id="log"></div></section>
+</main>
+<script type="module">
+  import { KobiEngine } from './kobi-engine.js';
+  const $ = (id) => document.getElementById(id);
+  const log = (s) => { $('log').textContent = (s + '\n' + $('log').textContent).slice(0, 4000); };
+  const kb = (n) => n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : (n / 1024).toFixed(0) + ' KB';
+  let engine = await KobiEngine.open($('bank').value);
+  let midi = null;
+  window.kobiSched = { get engine() { return engine; } };
+
+  function stats() {
+    const s = engine.status;
+    const rows = { 'song position': `${s.position.toFixed(1)} / ${s.duration.toFixed(0)} s`, 'slices needed': s.slices,
+      'fetched': `${s.fetched + s.ready} (${kb(s.bytes)} in ${s.requests} requests)`, 'decoded': `${s.ready} (${kb(s.decodedBytes)} PCM)`,
+      'evicted': s.evicted, 'voices': s.voices, 'notes started': s.started, 'fallbacks': s.fallbacks, 'missed': s.missed, 'stolen': s.stolen,
+      'range requests': s.rangeSupported === null ? '?' : s.rangeSupported ? 'yes' : 'no (server ignores Range: whole files)' };
+    $('stats').innerHTML = Object.entries(rows).map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+    drawReadiness();
+  }
+  function drawReadiness() {
+    const c = $('ready'), ctx = c.getContext('2d');
+    c.width = c.clientWidth * devicePixelRatio; const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+    if (!engine.song) return;
+    const d = engine.song.duration, secs = Math.ceil(d);
+    const per = new Array(secs).fill(null).map(() => ({ need: 0, ready: 0, fetched: 0 }));
+    for (const s of engine.loader.slices) for (const t of s.uses) {
+      const b = per[Math.min(secs - 1, Math.floor(t))]; b.need++;
+      if (s.state === 'ready') b.ready++; else if (s.state === 'fetched' || s.state === 'decoding') b.fetched++;
+    }
+    per.forEach((b, i) => {
+      if (!b.need) return;
+      const x = i / secs * W, w = Math.max(1, W / secs);
+      ctx.fillStyle = '#555'; ctx.fillRect(x, 0, w, H);
+      ctx.fillStyle = '#e0a458'; ctx.fillRect(x, H - H * (b.ready + b.fetched) / b.need, w, H * (b.ready + b.fetched) / b.need);
+      ctx.fillStyle = '#6fbf73'; ctx.fillRect(x, H - H * b.ready / b.need, w, H * b.ready / b.need);
+    });
+    ctx.fillStyle = '#fff'; ctx.fillRect(engine.position / d * W, 0, 2, H);
+  }
+  engine.onchange = () => stats();
+  async function loadSong() {
+    if (!midi) return;
+    engine.stop();
+    engine = await KobiEngine.open($('bank').value);
+    engine.onchange = () => stats();
+    engine.onprogress = (t, d) => { $('pos').value = t; stats(); };
+    engine.onend = () => { $('play').disabled = false; $('pause').disabled = true; log('end of song'); };
+    const t0 = performance.now();
+    const info = await engine.load(midi.bytes);
+    log(`${midi.name}: ${info.duration.toFixed(0)} s, ${info.notes} notes on ${info.programs.length} programs -> ${info.slices} slices, ${kb(info.bytes)} to fetch (${info.unmapped} notes unmapped); compiled in ${(performance.now() - t0).toFixed(0)} ms`);
+    $('info').textContent = `${info.notes} notes · ${info.slices} slices · ${kb(info.bytes)}`;
+    $('pos').max = info.duration; $('pos').disabled = false; $('play').disabled = false; $('stop').disabled = false;
+    stats();
+  }
+  $('file').onchange = async () => { const f = $('file').files[0]; if (f) { midi = { name: f.name, bytes: await f.arrayBuffer() }; loadSong(); } };
+  $('bank').onchange = loadSong;
+  $('play').onclick = async () => { $('play').disabled = true; await engine.play(); $('pause').disabled = false; log(`playing from ${engine.position.toFixed(1)} s`); };
+  $('pause').onclick = () => { engine.pause(); $('pause').disabled = true; $('play').disabled = false; };
+  $('stop').onclick = () => { engine.stop(); $('pause').disabled = true; $('play').disabled = false; $('pos').value = 0; stats(); };
+  $('pos').oninput = () => engine.seek(Number($('pos').value));
+  setInterval(stats, 500);
+  stats();
+</script>
+</body>
+</html>
