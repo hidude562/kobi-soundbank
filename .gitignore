@@ -1,7 +1,8 @@
-# sample sources and their archives (see SOURCES.md for how to pull them)
-uncompressed/
-archives/
-midi/
+# sample sources and their archives (see SOURCES.md for how to pull them).  No trailing slash: these
+# are often symlinks to a drive that holds the 24 GB of samples, and `name/` matches only a directory.
+uncompressed
+archives
+midi
 
 # built banks and everything rendered from them
 kobi_ogg*/
