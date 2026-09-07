@@ -66,6 +66,7 @@ web-test:
 	$(PY) kobi_web/test/peaks_browser.py
 	$(PY) kobi_web/test/splice_browser.py kobi_slim 000_Acoustic_Grand_Piano
 	$(PY) kobi_web/test/sched_browser.py 07COUNT kobi_slim 20
+	$(PY) kobi_web/test/songs_browser.py kobi_slim 24 16
 
 serve:
 	$(PY) kobi_web/test/rangeserver.py 8080 $(CURDIR)

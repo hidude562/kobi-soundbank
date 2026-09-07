@@ -41,7 +41,12 @@ export class SliceLoader {
     this.programs = new Map();           // id -> Promise<Program>
     this.loaded = new Map();             // id -> Program
     this.files = new Map();              // url -> { header: Uint8Array|null, ranges: [{a, b, u8}], whole: boolean }
-    this.slices = new Set();             // slices with registered uses
+    this.slices = new Set();             // slices the current song needs
+    // every slice holding a decoded buffer, the current song's and the songs before it.  A player
+    // page lasts a sitting, not a file: `clearUses` drops the previous song's slices from `slices`,
+    // and without this set their buffers would be unreachable — the budget would fill with audio
+    // nothing will play again until a song could not keep even its own opening decoded.
+    this.decoded = new Set();
     this.fetching = 0;
     this.decoding = 0;
     this.pendingBytes = 0;               // estimated size of decodes in flight
@@ -125,7 +130,8 @@ export class SliceLoader {
     this.slices.add(slice);
   }
 
-  /** Forget every registered use (a new song). */
+  /** Forget every registered use (a new song).  Decoded buffers stay — `_evict` reaches them through
+   *  `decoded` and takes them first, so a song returned to soon is still in memory. */
   clearUses() {
     for (const s of this.slices) { s.uses = []; }
     this.slices.clear();
@@ -274,6 +280,7 @@ export class SliceLoader {
       slice.firstAbs = slice.b0 === slice.header ? 0 : lastGranule(slice.u8) - nFile;
       slice.buffer = buffer;
       slice.state = 'ready';
+      this.decoded.add(slice);
       this.stats.decoded++;
       this.stats.decodedBytes += buffer.length * buffer.numberOfChannels * 4;
     } catch (e) {
@@ -291,14 +298,19 @@ export class SliceLoader {
    *  bytes fit under the budget. */
   _evict(need, protect) {
     if (this.committedBytes + need <= this.maxDecodedBytes) return;
-    const ready = [...this.slices].filter((s) => s.state === 'ready' && s.active === 0);
-    ready.sort((x, y) => this.nextUse(y) - this.nextUse(x));
+    // furthest need first, so the songs before this one (no uses left, so never due) go first
+    const ready = [...this.decoded].filter((s) => s.state === 'ready' && s.active === 0);
+    ready.sort((x, y) => {
+      const a = this.nextUse(x), b = this.nextUse(y);
+      return a === b ? 0 : (a > b ? -1 : 1);                        // not b - a: Infinity - Infinity is NaN
+    });
     for (const s of ready) {
       if (this.committedBytes + need <= this.maxDecodedBytes * 0.9) break;
       if (this.nextUse(s) - this.time <= protect) break;
       this.stats.decodedBytes -= s.buffer.length * s.buffer.numberOfChannels * 4;
       s.buffer = null;
-      s.state = 'fetched';
+      s.state = 'fetched';                                           // the compressed bytes stay: replaying costs no network
+      this.decoded.delete(s);
       this.stats.evicted++;
     }
   }

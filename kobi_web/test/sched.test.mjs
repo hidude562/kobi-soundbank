@@ -110,3 +110,43 @@ test('compileSong resolves programs, pedal-held releases, pan and bend, and regi
   assert.equal(song.unmapped, 1);                                                          // the drum hit had no regions in this fake bank
   assert.equal(song.bytes, 800);
 });
+
+
+function decodedSlice(loader, program, keycenter, seconds, uses) {
+  const s = { program, keycenter, lovel: 1, hivel: 127, state: 'idle', uses: [], b0: 0, b1: 1000, regions: [],
+              active: 0, buffer: { length: seconds * 44100, numberOfChannels: 2 } };
+  for (const t of uses) loader.want(s, t);
+  s.state = 'ready';
+  loader.decoded.add(s);
+  loader.stats.decodedBytes += s.buffer.length * s.buffer.numberOfChannels * 4;
+  return s;
+}
+
+test('a new song can evict the songs before it, and never its own imminent slices', () => {
+  const l = new SliceLoader('file:///bank/', {}, { rng: () => 0.5 });
+  l.maxDecodedBytes = 2e6;                         // three 5 s stereo slices are 5.3 MB: two must go
+  const old = [decodedSlice(l, '0', 60, 5, [10]), decodedSlice(l, '0', 62, 5, [20])];
+  l.clearUses();                                   // a new song is compiled: the old slices leave `slices`
+  assert.equal(l.slices.size, 0);
+  assert.equal(l.decoded.size, 2, 'their buffers are still held');
+  const fresh = decodedSlice(l, '0', 64, 5, [1]);  // the new song's opening, due at 1 s
+  l.time = 0;
+  l._evict(0, l.decodeAhead);
+  assert.deepEqual(old.map((s) => s.buffer), [null, null], 'the previous song is what gets freed');
+  assert.ok(fresh.buffer, 'the incoming song keeps the opening it just decoded');
+  assert.equal(l.decoded.size, 1);
+  assert.equal(l.stats.evicted, 2);
+  assert.ok(l.stats.decodedBytes > 0 && l.stats.decodedBytes <= 2e6);
+});
+
+test('clearUses leaves uses sorted-consistent: want() marks the slice dirty again', () => {
+  const l = new SliceLoader('file:///bank/', {}, { rng: () => 0.5 });
+  const s = decodedSlice(l, '0', 60, 1, [5, 1, 9]);
+  assert.equal(l.nextUse(s, 0), 1);                // sorts, sets _sorted
+  assert.equal(s._sorted, true);
+  l.clearUses();
+  assert.deepEqual(s.uses, []);
+  l.want(s, 7); l.want(s, 3);                      // re-registered out of order by the next song
+  assert.equal(s._sorted, false, 'want() must mark it dirty or nextUse would trust a stale order');
+  assert.equal(l.nextUse(s, 0), 3);
+});

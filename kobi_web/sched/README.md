@@ -16,6 +16,7 @@ kobi_web/test/
   sched.test.mjs    node: CRC and splice against a real file, priority rules, fallback choice, compilation
   splice_browser.py Chromium: a Range-fetched slice decodes bit-identically to the whole file
   sched_browser.py  Chromium: a demo MIDI in real time (bytes, RAM, fallbacks) and offline against sfizz
+  songs_browser.py  Chromium: a run of songs through one engine, each reaching full readiness
   rangeserver.py    a static server that honours Range requests (python -m http.server does not)
 ```
 
@@ -52,6 +53,12 @@ decoded set is capped at `maxDecodedBytes` (48 MB by default), evicting what is 
 away.  Slices due within the next ~second are always decoded and never evicted, and a buffer a
 voice is playing is held by the audio graph regardless, so the budget bounds *pre-decoded* audio;
 `status.pinnedBytes` reports the rest.
+
+A page lasts a sitting rather than a file, so the loader keeps every decoded slice in `decoded`, not
+just the current song's: when a new song is compiled the previous one's slices leave `slices` but
+keep their buffers, and eviction — furthest need first, which puts them first since they are no
+longer due — reclaims them under pressure.  A song returned to soon is therefore still in memory,
+and its compressed bytes are kept either way, so replaying costs no network.
 
 ## Fallback
 
