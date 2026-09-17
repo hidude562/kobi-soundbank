@@ -70,6 +70,11 @@ lets the song engine fetch notes instead of programs.
 
 ## Licence
 
-The bank is a derived work of CC0 libraries and may be redistributed; two items need attribution —
-the Salamander Grand Piano (CC BY 3.0, Alexander Holm) if the FreePats piano candidate is used, and the
-Muldjord kit (CC BY 4.0) — see [SOURCES.md](SOURCES.md).  The code in `kobi/` and `kobi_web/` is MIT, see [LICENSE](LICENSE).
+The banks are built from CC0 libraries (FreePats, VCSL, Karoryfer, VSCO 2 CE, and the CC0 celeste
+samples in the Sonatina Symphonic Orchestra repository) and the University of Iowa samples, which may be
+used for any project without restrictions, so they can be redistributed without attribution.  The default
+drum kit is Big Rusty Drums (Karoryfer, CC0) with VCSL percussion.  Two FreePats sets that do need
+attribution are only fallbacks and are not in the banks as built: the Salamander Grand Piano (CC BY 3.0,
+Alexander Holm), used only if the VCSL Steinway B is missing, and the Muldjord kit (CC BY 4.0), used only by
+`kobi.drums --core muldjord`.  See [SOURCES.md](SOURCES.md).  The code in `kobi/` and `kobi_web/` is MIT,
+see [LICENSE](LICENSE).
