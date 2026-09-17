@@ -25,7 +25,7 @@ report what was kept and how it was levelled.
 ## Reproduce
 
 ```
-git clone --recursive http://localhost:3000/hidude/kobi-soundbank.git && cd kobi-soundbank
+git clone --recursive https://github.com/hidude562/kobi-soundbank.git && cd kobi-soundbank
 python3 -m pip install -r requirements.txt          # plus ffmpeg on the system
 # pull the sample libraries into uncompressed/ as described in SOURCES.md
 make test                                            # 23 python tests, 8 node tests
@@ -72,4 +72,4 @@ lets the song engine fetch notes instead of programs.
 
 The bank is a derived work of CC0 libraries and may be redistributed; two items need attribution —
 the Salamander Grand Piano (CC BY 3.0, Alexander Holm) if the FreePats piano candidate is used, and the
-Muldjord kit (CC BY 4.0) — see [SOURCES.md](SOURCES.md).  The code in `kobi/` and `kobi_web/` is MIT.
+Muldjord kit (CC BY 4.0) — see [SOURCES.md](SOURCES.md).  The code in `kobi/` and `kobi_web/` is MIT, see [LICENSE](LICENSE).
