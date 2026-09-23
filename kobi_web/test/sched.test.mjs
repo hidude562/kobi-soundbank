@@ -150,3 +150,51 @@ test('clearUses leaves uses sorted-consistent: want() marks the slice dirty agai
   assert.equal(s._sorted, false, 'want() must mark it dirty or nextUse would trust a stale order');
   assert.equal(l.nextUse(s, 0), 3);
 });
+
+test('a dropped connection: failed fetches go back in the queue, the loader backs off, and resumes when the network does', async () => {
+  const { RETRY } = await import('../sched/kobi-loader.js');
+  const saved = { ...RETRY }, savedFetch = globalThis.fetch;
+  Object.assign(RETRY, { baseMs: 5, maxMs: 40 });
+  let up = true, calls = 0;
+  const status = new Map();                                      // url -> HTTP status to answer with
+  globalThis.fetch = async (url, init = {}) => {
+    calls++;
+    if (!up) throw new TypeError('Failed to fetch');
+    const st = status.get(String(url)) ?? 206;
+    const m = /bytes=(\d+)-(\d+)/.exec(init.headers?.Range || '');
+    const n = m ? Number(m[2]) - Number(m[1]) + 1 : 10;
+    return { ok: st < 400, status: st, arrayBuffer: async () => new ArrayBuffer(n) };
+  };
+  try {
+    const l = new SliceLoader('http://bank.test/', {}, { rng: () => 0.5 });
+    const mk = (i, url = 'http://bank.test/pack.ogg') => ({ key: 'k' + i, program: '0', url, header: 10, b0: 100 + i * 50, b1: 150 + i * 50,
+      keycenter: 60 + i, uses: [], state: 'idle', regions: [], active: 0 });
+    const slices = Array.from({ length: 8 }, (_, i) => mk(i));
+    const gone = mk(9, 'http://bank.test/missing.ogg');
+    status.set('http://bank.test/missing.ogg', 404);
+    for (const s of [...slices, gone]) l.want(s, 100);             // far off: nothing is decoded (no AudioContext here)
+    up = false;
+    l.pump();
+    const settle = (ms) => new Promise((r) => setTimeout(r, ms));
+    await settle(120);
+    assert.ok(l.stats.retries > 0, 'offline fetches were retried');
+    assert.ok(slices.every((s) => s.state === 'idle' || s.state === 'fetching'), 'nothing is given up while offline');
+    assert.ok(calls < 40, `backed off instead of hammering (${calls} requests in 120 ms)`);
+    up = true;
+    l.resume();                                                    // what the browser's online event does
+    for (let i = 0; i < 50 && !slices.every((s) => s.state === 'fetched'); i++) await settle(10);
+    assert.ok(slices.every((s) => s.state === 'fetched'), 'every slice arrived once the network was back');
+    assert.equal(gone.state, 'failed');                            // a 404 is not retried
+    const blip = mk(10, 'http://bank.test/busy.ogg');
+    status.set(blip.url, 503); l.want(blip, 100); l.pump();
+    await settle(30);
+    assert.equal(blip.state === 'failed', false, 'a 503 is retried');
+    status.set(blip.url, 206); l.resume();
+    for (let i = 0; i < 50 && blip.state !== 'fetched'; i++) await settle(10);
+    assert.equal(blip.state, 'fetched');
+    l.close();
+  } finally {
+    Object.assign(RETRY, saved);
+    globalThis.fetch = savedFetch;
+  }
+});

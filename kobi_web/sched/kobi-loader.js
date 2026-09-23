@@ -18,11 +18,26 @@
  * away.  Byte ranges go through a sparse per-file cache, so neighbouring notes that share a page
  * do not fetch it twice, and a server that ignores Range (python -m http.server) simply yields the
  * whole file once, which the cache then slices locally.
+ *
+ * The network can drop mid-song.  A fetch that fails for want of a connection (or stalls, or gets a
+ * 5xx / 429) puts its slice back in the queue and pauses new requests for a while — 1 s, doubling to
+ * 15 s while it keeps failing — instead of running through the whole queue in a burst of failures;
+ * the browser's `online` event (or `resume()`) ends the pause at once.  Only a 4xx other than 408 /
+ * 429 marks a slice failed for good: that file is not in the bank.
  */
 import { parseSfz, regionParams, dbToGain } from '../kobi-player.js';
 import { spliceOgg, lastGranule } from './kobi-ogg.js';
 
 export const PRIORITY = { FIRST: 60, NEIGHBOUR: 10, LAYER: 20, NEIGHBOUR_SEMITONES: 7 };
+// waits after a failed request (doubling from baseMs to maxMs), and how long a request may take before it
+// is abandoned (a slice is a few KB; a server without Range support sends the whole file, stallMs x 6)
+export const RETRY = { baseMs: 1000, maxMs: 15000, stallMs: 20000, metaTries: 4 };
+
+/** A request that will fail the same way however often it is made (the file is not there). */
+function permanent(status) { return status >= 400 && status < 500 && status !== 408 && status !== 429; }
+
+const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export class SliceLoader {
   /**
@@ -51,17 +66,64 @@ export class SliceLoader {
     this.decoding = 0;
     this.pendingBytes = 0;               // estimated size of decodes in flight
     this.rangeSupported = null;          // learned from the first 206 / 200
-    this.stats = { fetched: 0, bytes: 0, decoded: 0, decodedBytes: 0, evicted: 0, requests: 0 };
+    this.stats = { fetched: 0, bytes: 0, decoded: 0, decodedBytes: 0, evicted: 0, requests: 0, retries: 0 };
     this._manifest = null;
     this.onchange = null;                // () => void, after any state change (for a UI)
+    this.pausedUntil = 0;                // no new requests before this (performance.now() ms): the network is failing
+    this.netFailures = 0;                // failed requests since the last one that worked
+    this._wake = null;
+    this._online = () => this.resume();
+    if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('online', this._online);
+  }
+
+  /** The connection is back: end any pause and fetch at once (also called on the browser's `online`). */
+  resume() {
+    this.pausedUntil = 0;
+    this.netFailures = 0;
+    if (this._wake) { clearTimeout(this._wake); this._wake = null; }
+    this.pump();
+  }
+
+  /** Stop listening for `online` (a player that is thrown away). */
+  close() {
+    if (typeof window !== 'undefined' && window.removeEventListener) window.removeEventListener('online', this._online);
+    if (this._wake) { clearTimeout(this._wake); this._wake = null; }
+  }
+
+  /** A request failed for a reason that may pass: wait before the next one, longer each time. */
+  _backoff() {
+    this.netFailures++;
+    const wait = Math.min(RETRY.maxMs, RETRY.baseMs * 2 ** (this.netFailures - 1));
+    this.pausedUntil = Math.max(this.pausedUntil, now() + wait);
+  }
+
+  /** fetch with the stall timeout; a non-2xx status throws, marked `permanent` when retrying cannot help. */
+  async _request(url, init = {}, stallMs = RETRY.stallMs) {
+    const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ac ? setTimeout(() => ac.abort(), stallMs) : null;
+    try {
+      const res = await fetch(url, ac ? { ...init, signal: ac.signal } : init);
+      if (!res.ok) { const e = new Error(`${url}: ${res.status}`); e.permanent = permanent(res.status); throw e; }
+      return { res, u8: new Uint8Array(await res.arrayBuffer()) };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
+  /** A small file the loader cannot start without (manifest, SFZ, slice index): retried a few times. */
+  async _meta(url) {
+    for (let i = 0; ; i++) {
+      try {
+        return new TextDecoder().decode((await this._request(url)).u8);
+      } catch (e) {
+        if (e.permanent || i + 1 >= RETRY.metaTries) throw e;
+        await sleep(RETRY.baseMs * 2 ** i);
+      }
+    }
   }
 
   async manifest() {
-    if (!this._manifest) {
-      const r = await fetch(new URL('GM/manifest.json', this.url));
-      if (!r.ok) throw new Error(`manifest: ${r.status}`);
-      this._manifest = await r.json();
-    }
+    if (!this._manifest) this._manifest = JSON.parse(await this._meta(new URL('GM/manifest.json', this.url)));
     return this._manifest;
   }
 
@@ -83,10 +145,10 @@ export class SliceLoader {
     const entry = id === 'drums' ? man.drums : man.programs[id];
     if (!entry) throw new Error(`no program ${id} in the bank`);
     const sfzUrl = new URL('GM/' + encodeURIComponent(entry.file), this.url);
-    const text = await (await fetch(sfzUrl)).text();
+    const text = await this._meta(sfzUrl);
     const { control, global, regions } = parseSfz(text);
     const base = new URL((control.default_path || './').replace(/\\/g, '/'), sfzUrl);
-    const index = await (await fetch(new URL('slices.json', base))).json();
+    const index = JSON.parse(await this._meta(new URL('slices.json', base)));
     const params = regions.map((ops) => regionParams(ops, control)).filter((p) => p.sample && p.end !== null);
     const slices = new Map();
     for (const p of params) {
@@ -172,6 +234,13 @@ export class SliceLoader {
   }
 
   pump() {
+    if (this.ctx && this.ctx.state === 'closed') { this.close(); return; }   // its player has gone (the site closes the context)
+    const t = now();
+    if (t < this.pausedUntil) {                                     // the network is failing: wait, then try again
+      if (!this._wake) this._wake = setTimeout(() => { this._wake = null; this.pump(); }, this.pausedUntil - t + 5);
+      this._decodePump();
+      return;
+    }
     while (this.fetching < this.parallel) {
       let best = null, bp = Infinity;
       for (const s of this.slices) {
@@ -194,9 +263,15 @@ export class SliceLoader {
       slice.u8 = await this._bytes(slice.url, slice.b0, slice.b1);
       slice.state = 'fetched';
       this.stats.fetched++;
+      this.netFailures = 0;
     } catch (e) {
-      slice.state = 'failed';
       slice.error = e;
+      if (e.permanent) slice.state = 'failed';
+      else {                                                         // offline, dropped, stalled, 5xx: queue it again
+        slice.state = 'idle';
+        this.stats.retries++;
+        this._backoff();
+      }
     } finally {
       this.fetching--;
       this.onchange?.();
@@ -216,9 +291,9 @@ export class SliceLoader {
     const hit = f.ranges.find((r) => r.a <= a && r.b >= b);
     if (hit) return hit.u8.subarray(a - hit.a, b - hit.a);
     this.stats.requests++;
-    const res = await fetch(url, this.rangeSupported === false ? {} : { headers: { Range: `bytes=${a}-${b - 1}` } });
-    if (!res.ok) throw new Error(`${url}: ${res.status}`);
-    const u8 = new Uint8Array(await res.arrayBuffer());
+    const whole = this.rangeSupported === false;
+    const { res, u8 } = await this._request(url, whole ? {} : { headers: { Range: `bytes=${a}-${b - 1}` } },
+                                            whole ? RETRY.stallMs * 6 : RETRY.stallMs);
     this.stats.bytes += u8.length;
     if (res.status === 206) {
       this.rangeSupported = true;
@@ -362,7 +437,8 @@ export class SliceLoader {
     }
     // pinnedBytes: decoded audio that voices are playing right now — the graph holds it whatever the
     // budget says; the budget governs decodedBytes - pinnedBytes, what is decoded ahead of time
-    return { slices: this.slices.size, idle, fetching, fetched, ready, failed, ...this.stats, pinnedBytes, rangeSupported: this.rangeSupported };
+    return { slices: this.slices.size, idle, fetching, fetched, ready, failed, ...this.stats, pinnedBytes, rangeSupported: this.rangeSupported,
+             paused: now() < this.pausedUntil };                    // paused: requests are failing, waiting to retry
   }
 }
 

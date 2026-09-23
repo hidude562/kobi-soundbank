@@ -13,10 +13,11 @@ kobi_web/sched/
   kobi-engine.js    KobiEngine: load / play / pause / seek / stop, tick scheduler, voices, offline render
   index.html        demo with a readiness strip and live loader statistics
 kobi_web/test/
-  sched.test.mjs    node: CRC and splice against a real file, priority rules, fallback choice, compilation
+  sched.test.mjs    node: CRC and splice against a real file, priority rules, fallback choice, compilation, retries
   splice_browser.py Chromium: a Range-fetched slice decodes bit-identically to the whole file
   sched_browser.py  Chromium: a demo MIDI in real time (bytes, RAM, fallbacks) and offline against sfizz
   songs_browser.py  Chromium: a run of songs through one engine, each reaching full readiness
+  dropout_browser.py Chromium: the network drops mid-fetch and comes back; every note still arrives
   rangeserver.py    a static server that honours Range requests (python -m http.server does not)
 ```
 
@@ -34,6 +35,14 @@ Pages are written 0.1 s long (`packing.PAGE_S`) so a note fetch is about 1.3x th
 rather than 3x with ffmpeg's default 1 s pages; that costs 2.4 % of the bank.  If the server ignores
 `Range` the first response comes back whole (HTTP 200); the loader keeps it and slices locally, so
 everything still works — it just downloads programs instead of notes.
+
+The connection can drop mid-song.  A request that fails for want of a network (or stalls past
+`RETRY.stallMs`, or gets a 5xx / 429) puts its note back in the queue and pauses new requests — 1 s,
+doubling to 15 s while they keep failing — rather than running the whole queue into failures; the
+browser's `online` event (or `loader.resume()`) ends the pause at once, and `summary.paused` says a
+pause is on.  Only a 4xx other than 408 / 429 gives a note up: that file is not in the bank.  The
+manifest, SFZs and slice indexes are retried a few times too.  A loader whose AudioContext has been
+closed stops, so a player a page threw away does not wake up on `online`.
 
 ## Priority
 
