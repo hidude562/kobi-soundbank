@@ -35,7 +35,7 @@
       <select id="bank">
         <option value="../../kobi_ultra_hifi_pf/">ultra hifi pf · 2.6 MB</option>
         <option value="../../kobi_ultra/">ultra · 6 MB</option>
-        <option value="../../kobi_slim/" selected>slim · 24 MB</option>
+        <option value="../../kobi_slim/" selected>slim · 25 MB</option>
         <option value="../../kobi_ogg/">full · 90 MB</option>
       </select>
       <input type="file" id="file" accept=".mid,.midi,audio/midi">
@@ -59,6 +59,9 @@
   const $ = (id) => document.getElementById(id);
   const log = (s) => { $('log').textContent = (s + '\n' + $('log').textContent).slice(0, 4000); };
   const kb = (n) => n > 1e6 ? (n / 1e6).toFixed(1) + ' MB' : (n / 1024).toFixed(0) + ' KB';
+  // ?bank=../../kobi_slim/ picks the bank, ?midi=../../midi/nena/01%20CANDY.MID loads a song on open
+  const params = new URLSearchParams(location.search);
+  if (params.get('bank')) $('bank').value = params.get('bank');
   let engine = await KobiEngine.open($('bank').value);
   let midi = null;
   window.kobiSched = { get engine() { return engine; } };
@@ -108,6 +111,12 @@
     stats();
   }
   $('file').onchange = async () => { const f = $('file').files[0]; if (f) { midi = { name: f.name, bytes: await f.arrayBuffer() }; loadSong(); } };
+  if (params.get('midi')) {
+    const url = params.get('midi');
+    const r = await fetch(url);
+    if (r.ok) { midi = { name: decodeURIComponent(url.split('/').pop()), bytes: await r.arrayBuffer() }; loadSong(); }
+    else log(`could not load ${url}: HTTP ${r.status}`);
+  }
   $('bank').onchange = loadSong;
   $('play').onclick = async () => { $('play').disabled = true; await engine.play(); $('pause').disabled = false; log(`playing from ${engine.position.toFixed(1)} s`); };
   $('pause').onclick = () => { engine.pause(); $('pause').disabled = true; $('play').disabled = false; };

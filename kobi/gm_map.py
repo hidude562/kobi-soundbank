@@ -236,6 +236,65 @@ PROGRAMS = [
 ]
 assert len(PROGRAMS) == 128 and [p.num for p in PROGRAMS] == list(range(128))
 
+
+# ---- picks from the swipe app (python3 -m kobi.swipe): an alternative picked for a program there goes first
+def _pick_cand(pick: dict, kind: str) -> Cand | None:
+    loc, root = pick['loc'], pick.get('root') or ''
+    note = f"swipe pick: {pick.get('lib_title', '')} ({pick.get('license', '')})" + (f" — {pick['note']}" if pick.get('note') else '')
+    octave = int(pick.get('octave') or 0)
+    if pick['shape'] == 'gm':                                   # the app's octave comes on top of the candidate's own
+        return Cand(loc['source'], loc['path'], loc['sub'], loc['kind'], loc['standin'], loc['note'] or note,
+                    loc['octave'] + octave, tuple(loc['tags']))
+    if pick['shape'] == 'folder':
+        if 'inst' in loc:                                       # an Iowa instrument the app fetched
+            return Cand('Iowa', loc['inst'], None, kind, note=note, octave=octave, tags=tuple(loc['tags']))
+        return Cand(root.split('/')[0], loc['path'], loc['sub'], kind, note=note, octave=octave, tags=tuple(loc['tags']))
+    if pick['shape'] in ('sfz', 'derived') and 'rel' in loc:   # root: Karoryfer/<set>, FreePats, Extra/<library> ...
+        source, _, path = root.partition('/')
+        return Cand(source, path, glob.escape(loc['rel']), kind, note=note, octave=octave)
+    return None
+
+
+def apply_picks(programs: list, path: str, layers_out: dict | None = None) -> list:
+    """Put each pick recorded in ``path`` (SWIPE_PICKS.json) first among its program's candidates, once
+    its samples are all on disk.  Returns [(program number, Cand)] for what was applied.  A layered pick
+    goes into ``layers_out`` (gm_map.LAYERS) as its stack of (candidate, gain, pan); an echo on it is
+    recorded in SWIPE_PICKS but not built (the bank's players have no delay).  The drum kit is
+    assembled by kobi.drums, so a kit pick is only recorded."""
+    if not os.path.exists(path):
+        return []
+    import json
+    with open(path) as fh:
+        picks = json.load(fh)
+    applied = []
+    for key, row in picks.items():
+        num, pick = int(key), row.get('pick')
+        if row.get('verdict') != 'replace' or not pick or not pick.get('complete') or num >= len(programs):
+            continue
+        prog = programs[num]
+        kind = next((c.kind for c in prog.cands if c.resolve()[1]), prog.cands[0].kind)
+        if pick.get('layers'):                                  # a layered pick: a stack, as for the brass section
+            layers = [(_pick_cand(L, kind), float(L.get('gain', 0.0)), float(L.get('pan', 0.0)), dict(cover=bool(L.get('cover'))))
+                      for L in pick['layers']]
+            layers = [x for x in layers if x[0] is not None and x[0].resolve()[1]]
+            if not layers:
+                continue
+            if layers_out is not None:
+                layers_out[num] = layers
+            prog.cands = [layers[0][0]] + prog.cands
+            applied.append((num, layers[0][0]))
+            continue
+        cand = _pick_cand(pick, kind)
+        if cand is None or not cand.resolve()[1]:
+            continue
+        prog.cands = [cand] + [c for c in prog.cands if (c.source, c.path, c.sub, c.tags) != (cand.source, cand.path, cand.sub, cand.tags)]
+        if layers_out is not None:                              # a single instrument picked over a stack (the brass section)
+            layers_out.pop(num, None)
+        applied.append((num, cand))
+    return applied
+
+
+
 # programs built as a stack of several instruments: (candidate, gain dB).  Each layer keeps its own
 # key range, so a note sounds on every layer whose instrument can play it.
 # (candidate, gain dB, pan): the section is seated across the stereo field — trumpets left, saxes
@@ -245,6 +304,10 @@ LAYERS = {
          (K('Karoryfer.Weresax.v.1.003', 'alto_map_forte_condenser.sfz'), -5.0, -15),
          (V('Aerophones/Reed Aerophones/Tenor Saxophone', 'Vibrato', octave=1), -5.0, 15)],
 }
+
+# KOBI_SWIPE_PICKS=0 reads the map as written (the swipe app itself compares against the bank as built)
+APPLIED_PICKS = apply_picks(PROGRAMS, os.path.join(paths.ROOT, 'SWIPE_PICKS.json'), LAYERS) \
+    if os.environ.get('KOBI_SWIPE_PICKS', '1') != '0' else []
 
 # channel 10: kobi.drums assembles the GM kit (keys 35-81) from the Muldjord kit remapped to GM keys plus VCSL
 # percussion; these entries are the raw kits it draws on (Muldjord maps its pieces to keys 48-66, not GM)
@@ -293,6 +356,8 @@ def main() -> int:
     for r in bad:
         print(f'  MISSING {r["program"]:3d} {r["name"]:24s} {r["source"]}: {r["path"]} / {r["sub"]}')
     print('primary sources:', by_src, f'| stand-ins {standins}, VSCO2/SSO gaps {gaps}')
+    for num, c in APPLIED_PICKS:
+        print(f'  swipe pick first for {num:3d} {PROGRAMS[num].name}: {c.source}: {c.path} {c.sub or ""}')
     return 1 if bad else 0
 
 

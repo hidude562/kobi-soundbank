@@ -59,9 +59,13 @@ def _read(sfz: str):
     from .extend import strip_fills
     head, samples = [], {}
     folder = None
+    layer = None                                    # a stacked program's '// layer:' (kobi.compress)
     # only the sampled notes: kobi.extend's copies share a note's sample and offset but carry the
     # ranges of the holes they fill, and would overwrite the note's own range and layer here
     for line in strip_fills(open(sfz).read().split('\n')):
+        if line.startswith('// layer:'):
+            layer = line[3:]
+            continue
         if not line.startswith('<region>'):
             head.append(line)
             m = re.search(r'default_path=(\S+)', line)
@@ -71,7 +75,7 @@ def _read(sfz: str):
         ops = dict(_OP.findall(line))
         f = ops['sample']
         ident = (f, ops.get('offset', ''))          # a packed bank: one file, notes told apart by offset
-        s = samples.setdefault(ident, dict(file=os.path.join(folder, f), lines=[], key=None, keyless=False,
+        s = samples.setdefault(ident, dict(file=os.path.join(folder, f), lines=[], key=None, keyless=False, layer=layer,
                                            offset=int(ops['offset']) if 'offset' in ops else None))
         s['lines'].append(line)
         if 'pitch_keycenter' in ops:
@@ -109,7 +113,23 @@ def _duration(path: str) -> float:
 
 
 def select(samples: list, pol: dict) -> list:
-    """Apply one policy: returns the kept samples with new lo/hi/lovel/hivel set."""
+    """Apply one policy: returns the kept samples with new lo/hi/lovel/hivel set.  The layers of a
+    stacked program all sound on every note, so each is thinned on its own."""
+    out = []
+    for layer in dict.fromkeys(s.get('layer') for s in samples):
+        out += _select([s for s in samples if s.get('layer') == layer], pol)
+    return out
+
+
+def _with_layers(lines: list, s: dict, last: list) -> list:
+    """``lines`` preceded by the sample's '// layer:' line when the layer changes (``last``: [layer so far])."""
+    if s.get('layer') and s['layer'] != last[0]:
+        last[0] = s['layer']
+        return ['// ' + s['layer']] + lines
+    return lines
+
+
+def _select(samples: list, pol: dict) -> list:
     # 1. round robins: one per (key, velocity window)
     keep = {}
     for s in samples:
@@ -131,10 +151,13 @@ def select(samples: list, pol: dict) -> list:
     for key, ss in by_key.items():
         wins = sorted({(s['lovel'], s['hivel']) for s in ss})
         if nv and len(wins) > nv:
-            want = {1: [100], 2: [64, 110], 3: [40, 90, 120], 4: [30, 70, 100, 124]}[nv]
+            # velocity 100 keeps the layer it played before: programs and kit pieces are levelled at 100,
+            # and a source's neighbouring layers can be far apart (Sam's Sonor ride: 82-95 is 13 dB under
+            # 96-110, and [40, 90, 120] handed velocity 100 to it)
+            want = {1: [100], 2: [55, 100], 3: [40, 100, 124], 4: [30, 70, 100, 124]}[nv]
             chosen = []
-            for v in want:
-                w = min(wins, key=lambda w: abs((w[0] + w[1]) / 2 - v))
+            for v in want:                  # the window that plays velocity v, else the nearest one
+                w = next((w for w in wins if w[0] <= v <= w[1]), None) or min(wins, key=lambda w: abs((w[0] + w[1]) / 2 - v))
                 if w not in chosen:
                     chosen.append(w)
             wins_kept = sorted(chosen)
@@ -305,6 +328,7 @@ def _write_bank(progs, plan, a):
         folder = os.path.basename(os.path.dirname(kept[0]['file'])) if kept else p['name']
         os.makedirs(os.path.join(a.out, folder), exist_ok=True)
         lines = list(p['head'])
+        last_layer = [None]
         if kept and kept[0].get('stem'):                       # packed bank: re-pack what survives
             cache = os.path.join(a.src, '.pcm', folder)
             groups = {}
@@ -326,7 +350,7 @@ def _write_bank(progs, plan, a):
                     os.remove(f)
                 for s in group:
                     pos = dict(index[s['stem']], file=packfile)
-                    lines += [_rewrite(l, s, pos) for l in s['lines']]
+                    lines += _with_layers([_rewrite(l, s, pos) for l in s['lines']], s, last_layer)
             real += sum(os.path.getsize(os.path.join(a.out, folder, f)) for f in groups)
         else:
             for s in kept:
@@ -336,7 +360,7 @@ def _write_bank(progs, plan, a):
                 else:
                     shutil.copy2(s['file'], dst)
                 real += os.path.getsize(dst)
-                lines += [_rewrite(l, s) for l in s['lines']]
+                lines += _with_layers([_rewrite(l, s) for l in s['lines']], s, last_layer)
         with open(os.path.join(a.out, 'GM', p['name'] + '.sfz'), 'w') as fh:
             fh.write('\n'.join(lines) + '\n')
         keys = len({s['key'] for s in kept}); vels = max((len({(s['lovel2'], s['hivel2']) for s in kept if s['key'] == k}) for k in {s['key'] for s in kept}), default=0)

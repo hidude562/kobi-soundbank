@@ -1,6 +1,6 @@
 import re
 
-from kobi.extend import extend_sfz
+from kobi.extend import FILL_KEYS, extend_sfz
 
 SFZ = """<control> default_path=../x/
 <global> volume=1
@@ -47,13 +47,15 @@ def test_every_hole_is_filled_once_by_the_nearest_cell_and_the_step_is_idempoten
     # between 62 and 72 the nearest key's layers tile the velocities: key 60 soft below, loud above
     at65 = lambda v: {o['pitch_keycenter'] + ':' + o['offset'] for o in regs if int(o['lokey']) <= 65 <= int(o['hikey']) and int(o['lovel']) <= v <= int(o['hivel'])}
     assert at65(30) == {'60:20'} and at65(100) == {'60:40'} and at65(67) == {'60:20'}
-    # above the top sample the bare key=72 region became a full-velocity range keeping its keycenter
-    top = [o for o in regs if int(o['hikey']) == 127]
-    assert any(o['pitch_keycenter'] == '72' and o['lokey'] == '73' for o in top)
+    # above the top sample the bare key=72 region became full-velocity ranges keeping its keycenter,
+    # FILL_KEYS keys a copy so each copy's loudness correction fits the keys it plays
+    top = [o for o in regs if int(o['lokey']) > 72]
+    assert all(o['pitch_keycenter'] == '72' for o in top) and any(o['lokey'] == '73' for o in top)
+    assert max(int(o['hikey']) - int(o['lokey']) + 1 for o in regs[5:]) <= FILL_KEYS
     assert extend_sfz(str(p)) == 0
     assert p.read_text() == text
     # a bank extended under an older policy is re-done from its originals, not extended twice
-    p.write_text(text.replace('lokey=73 hikey=127', 'lokey=73 hikey=120'))
+    p.write_text(text.replace('lokey=73 hikey=76', 'lokey=73 hikey=120'))
     extend_sfz(str(p))
     assert p.read_text() == text
 
@@ -83,3 +85,20 @@ def test_a_mixed_program_is_extended_and_its_keyless_region_is_left_alone(tmp_pa
     assert 'key=60 pitch_keytrack=0' in text                      # untouched, still on its own key
     regs = [l for l in text.split('\n') if l.startswith('<region>') and 'pitch_keytrack=0' not in l]
     assert any('lokey=0' in l for l in regs) and any('hikey=127' in l for l in regs)
+
+
+STACK = """<control> default_path=../x/
+// layer:1:a
+<region> sample=p.ogg pitch_keycenter=60 lokey=50 hikey=70 offset=0 end=10
+// layer:2:b
+<region> sample=p.ogg pitch_keycenter=60 lokey=55 hikey=65 offset=20 end=30 volume=-24
+"""
+
+
+def test_each_layer_of_a_stack_is_extended_over_the_whole_map(tmp_path):
+    p = tmp_path / 'a.sfz'
+    p.write_text(STACK)
+    extend_sfz(str(p))
+    regs = _regions(p.read_text())
+    for k in range(128):          # both layers sound on every key: layer a's 50..70 does not stop b's fills
+        assert {o['offset'] for o in regs if int(o['lokey']) <= k <= int(o['hikey'])} == {'0', '20'}, k

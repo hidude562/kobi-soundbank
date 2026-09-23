@@ -73,14 +73,16 @@ def measure(sfz: str, note_s: float = 1.2, tail_s: float = 0.8) -> dict:
         picks = [k for k in (36, 38, 42) if k in centres] or centres[:3]      # kick, snare, closed hat
     elif keyless:
         picks = centres[:3]
-    else:
-        picks = [centres[len(centres) // 4], centres[len(centres) // 2], centres[(3 * len(centres)) // 4]]
+    else:                                   # up to nine centres across the range: three could all land in
+        n = min(9, len(centres))            # one louder zone (Pad 6 came out 1.8 dB under the bank)
+        picks = sorted({centres[round(i * (len(centres) - 1) / max(1, n - 1))] for i in range(n)})
     vals = []
     for k in picks:
         y = render(sfz, [(0.0, 'on', k, 100), (note_s, 'off', k, 0)], note_s + tail_s)
         vals.append(momentary_max_lufs(y, FS))
     good = [v for v in vals if np.isfinite(v)]
-    return dict(lufs=float(np.mean(good)) if good else -np.inf, notes=list(zip(picks, vals)))
+    avg = np.median if len(good) > 3 else np.mean
+    return dict(lufs=float(avg(good)) if good else -np.inf, notes=list(zip(picks, vals)))
 
 
 _GLOBAL = re.compile(r'^<global>(.*)$', re.M)

@@ -16,6 +16,9 @@ import argparse
 import glob
 import os
 import re
+
+import numpy as np
+
 from . import paths
 
 _OP = re.compile(r'(?<!\S)([\w]+)=(\S+)')
@@ -49,7 +52,66 @@ def _set(line: str, **kv) -> str:
 
 def tidy_kit(path: str, decay: dict = DECAY) -> dict:
     original = open(path).read()
-    lines = original.split('\n')
+    lines, stats = tidy_lines(original.split('\n'), decay)
+    text = '\n'.join(lines)
+    if text != original:
+        with open(path, 'w') as fh:
+            fh.write(text)
+    return stats
+
+
+_TARGET = re.compile(r'^// (\d+) .*\(\d+ regions, (-?[\d.]+|-inf) LUFS, gain ([-+][\d.]+) dB\)')
+
+
+def targets_from(kit_source: str) -> dict:
+    """{key: LUFS} kobi.drums levelled each key of its kit to (its measured level + the gain it set),
+    from the comment it writes above each key."""
+    out = {}
+    for l in open(kit_source).read().split('\n'):
+        m = _TARGET.match(l)
+        if m and m.group(2) != '-inf':
+            out[int(m.group(1))] = float(m.group(2)) + float(m.group(3))
+    return out
+
+
+def level_kit(path: str, targets: dict, tol: float = 0.5) -> dict:
+    """Bring each key of a built kit back to its target, measured as it now plays (velocity 100, max
+    momentary LUFS).  Packing mixes a hit's takes, kobi.kit drops and shortens others, and the level
+    kobi.drums measured on its source lines did not always survive: the open triangle came out 10 dB
+    under the kit, the long whistle 6 dB over."""
+    from .demo import FS, render
+    from .levels import momentary_max_lufs
+    lines = open(path).read().split('\n')
+    keyed: dict = {}
+    for i, l in enumerate(lines):
+        if l.startswith('<region>'):
+            o = dict(_OP.findall(l))
+            k = o.get('key', o.get('lokey'))
+            if k is not None:
+                keyed.setdefault(int(k), []).append(i)
+    fixed = {}
+    for key, want in targets.items():
+        if key not in keyed:
+            continue
+        y = render(os.path.abspath(path), [(0.0, 'on', key, 100), (0.5, 'off', key, 0)], 1.5)
+        got = momentary_max_lufs(y, FS)
+        if not np.isfinite(got) or abs(want - got) <= tol:
+            continue
+        d = want - got
+        for i in keyed[key]:
+            m = re.search(r'(?<!\S)volume=(-?[\d.]+)', lines[i])
+            lines[i] = _set(lines[i], volume=f'{(float(m.group(1)) if m else 0.0) + d:.2f}')
+        fixed[key] = round(d, 1)
+    if fixed:
+        with open(path, 'w') as fh:
+            fh.write('\n'.join(lines))
+    return fixed
+
+
+def tidy_lines(lines: list, decay: dict = DECAY) -> tuple[list, dict]:
+    """``tidy_kit`` on SFZ lines: (lines, stats).  kobi.drums measures each key through this, so the
+    gain it sets is for the hit that will actually play."""
+    lines = list(lines)
     regions = [(i, dict(_OP.findall(l))) for i, l in enumerate(lines) if l.startswith('<region>')]
     by_key: dict = {}
     for i, o in regions:
@@ -81,11 +143,7 @@ def tidy_kit(path: str, decay: dict = DECAY) -> dict:
                     for i in idx:
                         lines[i] = _set(lines[i], ampeg_hold=f'{hold:g}', ampeg_decay=f'{dec:g}', ampeg_sustain=0, ampeg_release=f'{dec:g}')
                         decayed += 1
-    text = '\n'.join(l for i, l in enumerate(lines) if i not in delete)
-    if text != original:
-        with open(path, 'w') as fh:
-            fh.write(text)
-    return dict(robins=robins, dropped=dropped, decayed=decayed)
+    return [l for i, l in enumerate(lines) if i not in delete], dict(robins=robins, dropped=dropped, decayed=decayed)
 
 
 def main(argv=None) -> int:

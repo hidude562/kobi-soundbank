@@ -138,11 +138,31 @@ def _resolve_case(path: str) -> str | None:
     return cur
 
 
+_DIRECTIVE = re.compile(r'#define\s+(\$\w+)\s+(\S+)|#include\s+"([^"]+)"')
+
+
+def _is_text(seg: str) -> bool:
+    """Whether what is left beside a directive is SFZ (a header or an opcode), not debris such as the
+    stray quote after ``#include "mappings/wet/splash_broken.sfz""`` in Swirly Drums."""
+    return '=' in seg or '<' in seg
+
+
+def _subst(text: str, defines: dict) -> str:
+    for k in sorted(defines, key=len, reverse=True):
+        if k in text:
+            text = text.replace(k, defines[k])
+    return text
+
+
 def _sfz_text(path: str, defines: dict, stack: tuple, root_dir: str | None = None) -> list:
     """Lines of ``path`` with comments removed, ``#define`` applied and ``#include`` inlined.  A file
     may be included any number of times (Karoryfer re-includes one mapping per ``#define``); only
     a file including itself, directly or indirectly, is refused.  Include paths are relative to the
-    top-level file's folder (the SFZ rule); the including file's folder is tried second."""
+    top-level file's folder (the SFZ rule); the including file's folder is tried second.
+
+    Directives are taken where they stand, in order, also in the middle of a line (Headroom Piano
+    writes ``<region> #define $KEY 21 lokey=21 hikey=22 #include "Data/sample.txt"``): text before
+    a ``#define`` does not see it, text after it does."""
     root_dir = root_dir or os.path.dirname(os.path.abspath(path))
     out = []
     with open(path, encoding='utf-8', errors='replace') as fh:
@@ -150,28 +170,25 @@ def _sfz_text(path: str, defines: dict, stack: tuple, root_dir: str | None = Non
             i = line.find('//')
             if i >= 0:
                 line = line[:i]
-            s = line.strip()
-            if not s:
+            if not line.strip():
                 continue
-            if s.startswith('#define'):
-                m = re.match(r'#define\s+(\$\w+)\s+(\S+)', s)
-                if m:
+            pos = 0
+            for m in _DIRECTIVE.finditer(line):
+                seg = line[pos:m.start()]
+                if _is_text(seg):
+                    out.append(_subst(seg, defines).rstrip('\n'))
+                pos = m.end()
+                if m.group(1):
                     defines[m.group(1)] = m.group(2)
-                continue
-            for k in sorted(defines, key=len, reverse=True):
-                if k in line:
-                    line = line.replace(k, defines[k])
-                    s = line.strip()
-            if s.startswith('#include'):
-                m = re.match(r'#include\s+"([^"]+)"', s)
-                if m:
-                    rel = m.group(1).replace('\\', '/')
-                    inc = _resolve_case(os.path.join(root_dir, rel)) or \
-                        _resolve_case(os.path.join(os.path.dirname(path), rel))
-                    if inc and os.path.abspath(inc) not in stack:
-                        out.extend(_sfz_text(inc, defines, stack + (os.path.abspath(inc),), root_dir))
-                continue
-            out.append(line.rstrip('\n'))
+                    continue
+                rel = _subst(m.group(3), defines).replace('\\', '/')
+                inc = _resolve_case(os.path.join(root_dir, rel)) or \
+                    _resolve_case(os.path.join(os.path.dirname(path), rel))
+                if inc and os.path.abspath(inc) not in stack:
+                    out.extend(_sfz_text(inc, defines, stack + (os.path.abspath(inc),), root_dir))
+            seg = line[pos:]
+            if _is_text(seg) or (pos == 0 and seg.strip()):
+                out.append(_subst(seg, defines).rstrip('\n'))
     return out
 
 
@@ -301,6 +318,7 @@ _MIC_PREF = ['main', 'mainspirit', 'mid', 'close', 'sum', 'player', 'stereo', 'r
 _MICS = set(_MIC_PREF)
 _RELEASE = {'rel', 'release', 'releases', 'nosusrel', 'lowrel', 'highrel', 'susrel', 'rels'}
 _SPLIT = re.compile(r'[_\- .]+')
+_NEG_OCTAVE = re.compile(r'(?:^|(?<=[_ .]))([A-Ga-g][#b]?-1)(?=$|[_ .])')
 _AUDIO = ('.wav', '.flac', '.aif', '.aiff')
 
 
@@ -309,6 +327,12 @@ def parse_name(stem: str, rel_dir: str = '') -> dict:
     None), vel_kind ('vl' | 'dyn' | None), rr (round robin / take index or None), mic, release
     (bool) and tags (the remaining words, lower case, folder words included)."""
     out = dict(note=None, vel=None, vel_kind=None, rr=None, mic=None, release=False, tags=[])
+    # a note in octave -1 ("A-1" in VCSL's Knight and Kawai pianos: A0 once their octave is corrected)
+    # would be split at its hyphen into 'A' and '1' and lose its pitch
+    m = _NEG_OCTAVE.search(stem)
+    if m:
+        out['note'] = note_to_midi(m.group(1))
+        stem = stem[:m.start(1)] + stem[m.end(1):]
     nums = []
     for tok in _SPLIT.split(stem):
         if not tok:
@@ -506,16 +530,56 @@ def _gated_out(r: Region, control: dict, assume: dict | None = None) -> bool:
 
 
 def _assumed_ccs(regions: list, control: dict) -> dict:
-    """For a CC whose gates exclude every gated region at the default value, the author expects the
-    host to set it (Shinyguitar gates all layers behind CC100=1; the Bigcat cello selects one of four
-    variants with CC107): assume the lowest window, i.e. the first variant."""
+    """For a CC whose gates exclude every region at the default value, the author expects the host to
+    set it (Shinyguitar gates all layers behind CC100=1; the Bigcat cello selects one of four variants
+    with CC107): assume the lowest window, i.e. the first variant.  A CC with a single window that
+    gates only some layers is not that: it is an extra the player turns on (Black And Blue's unison
+    voice, locc100=1), silent at its default."""
     windows = {}
     for r in regions:
         for cc, (lo, hi) in _gates(r).items():
             if cc >= 0 and cc not in _CC_CONVENTIONAL and f'set_cc{cc}' not in control and f'set_hdcc{cc}' not in control:
                 windows.setdefault(cc, []).append((lo, hi))
     return {cc: min(lo for lo, _ in ws) for cc, ws in windows.items()
-            if not any(lo <= _cc_default(cc, control) <= hi for lo, hi in ws)}
+            if (len(set(ws)) > 1 or len(ws) == len(regions)) and not any(lo <= _cc_default(cc, control) <= hi for lo, hi in ws)}
+
+
+_XF = re.compile(r'^xf(in|out)_(lo|hi)cc(\d+)$')
+
+
+def _xf_gain(r: Region, control: dict) -> float:
+    """The region's controller-crossfade gain (xfin_/xfout_ locc/hicc) at the file's CC defaults."""
+    fades = {}
+    for k, v in r.opcodes.items():
+        m = _XF.match(k)
+        if m:
+            fades.setdefault(int(m.group(3)), {})[m.group(1) + m.group(2)] = _num(v, 0.0)
+    g = 1.0
+    for cc, d in fades.items():
+        val = _cc_default(cc, control)
+        if 'inlo' in d or 'inhi' in d:
+            lo, hi = d.get('inlo', 0.0), d.get('inhi', 0.0)
+            g *= 1.0 if val >= hi else 0.0 if val <= lo else (val - lo) / (hi - lo)
+        if 'outlo' in d or 'outhi' in d:
+            lo, hi = d.get('outlo', 127.0), d.get('outhi', 127.0)
+            g *= 1.0 if val <= lo else 0.0 if val >= hi else (hi - val) / (hi - lo)
+    return g
+
+
+def _vel_window(r: Region) -> tuple[int, int]:
+    """The region's velocity range with its velocity crossfades (xfin_lovel/hivel, xfout_lovel/hivel)
+    turned into hard edges at their midpoints: the bank's players have velocity ranges, not
+    crossfades, and without this every dynamic layer of a crossfaded instrument sounds at once
+    (jSteelDrum, the timpani: five layers stacked on every note)."""
+    lo, hi = r.lovel, r.hivel
+    o = r.opcodes
+    if 'xfin_lovel' in o or 'xfin_hivel' in o:
+        a, b = _num(o.get('xfin_lovel'), 0.0), _num(o.get('xfin_hivel'), 0.0)
+        lo = max(lo, int((a + b) // 2) + 1 if b > a else int(b))
+    if 'xfout_lovel' in o or 'xfout_hivel' in o:
+        a, b = _num(o.get('xfout_lovel'), 127.0), _num(o.get('xfout_hivel'), 127.0)
+        hi = min(hi, int((a + b) // 2) if b > a else int(a))
+    return lo, hi
 
 
 def default_view(inst: Instrument, keyswitch: int | None = None, release: bool = False) -> list:
@@ -530,7 +594,15 @@ def default_view(inst: Instrument, keyswitch: int | None = None, release: bool =
     want = ('release', 'release_key') if release else ('attack', 'first')
     pool = [r for r in inst.regions if r.trigger in want and (r.sw_last is None or r.sw_last == keyswitch)]
     assume = _assumed_ccs(pool, inst.control)
-    return [r for r in pool if not _gated_out(r, inst.control, assume)]
+    view = [r for r in pool if not _gated_out(r, inst.control, assume)]
+    # a layer faded all the way out at the defaults is silent (Bear Sax's key clicks sit behind
+    # xfin_hicc121 with CC121 at 0) -- unless that is every layer, when the author expects the host
+    # to move the controller (Shinyguitar's CC100)
+    audible = [r for r in view if _xf_gain(r, inst.control) > 0.0]
+    view = audible if audible else view
+    for r in view:
+        r.lovel, r.hivel = _vel_window(r)
+    return [r for r in view if r.lovel <= r.hivel]
 
 
 # --------------------------------------------------------------------------- candidates
@@ -557,7 +629,7 @@ def load_candidate(cand, name: str | None = None) -> Instrument | None:
                     r.pitch_keycenter += 12 * cand.octave
                     r.lokey, r.hikey = min(127, max(0, r.lokey + 12 * cand.octave)), min(127, max(0, r.hikey + 12 * cand.octave))
         return inst
-    if cand.source in ('FreePats', 'Karoryfer'):
+    if cand.source not in ('VCSL', 'VSCO2', 'SSO', 'Iowa'):        # FreePats, Karoryfer, anything picked in kobi.swipe
         path, n = cand.resolve()
         if n == 0:
             return None
@@ -663,6 +735,43 @@ if __name__ == '__main__':
     raise SystemExit(main())
 
 
+def cover_keys(regions: list, lo: int, hi: int) -> None:
+    """Stretch the lowest and highest keyed zone of every velocity band to reach ``lo`` / ``hi``."""
+    bands = {}
+    for r in regions:
+        if r.pitch_keycenter is not None and r.trigger in ('attack', 'first'):
+            bands.setdefault((r.lovel, r.hivel), []).append(r)
+    for rs in bands.values():
+        bottom = min(r.lokey for r in rs)
+        top = max(r.hikey for r in rs)
+        for r in rs:
+            if r.lokey == bottom:
+                r.lokey = min(r.lokey, lo)
+            if r.hikey == top:
+                r.hikey = max(r.hikey, hi)
+
+
+_NOISE = re.compile(r'nois', re.I)
+
+
+def _is_noise(r: Region) -> bool:
+    """A source's effect key rather than a note: a region labelled as noise (MTG sax 'noises breath',
+    'noises key-clicks') or a noise_* sample (Swagbass's fingering and muting noises)."""
+    labels = ' '.join(str(v) for k, v in r.opcodes.items() if k.endswith('label'))
+    return bool(_NOISE.search(labels) or _NOISE.match(os.path.basename(r.sample)))
+
+
+def _notes_only(num: int, kind: str, view: list) -> list:
+    """A melodic program's view without its source's noise keys.  They sit on keys of their own around
+    the playable range (the soprano sax's breaths and key clicks on 51-52, Swagbass's noises on
+    75-84); kept, they became the program's lowest or highest notes and kobi.extend copied them over
+    the rest of the keyboard.  Percussive and effect programs (112-127) keep them."""
+    if kind not in ('sustain', 'decay') or num >= 112:
+        return view
+    notes = [r for r in view if not _is_noise(r)]
+    return notes if notes else view
+
+
 def load_program_view(num, name=None):
     """(kind, regions) for a GM program: its first ingestible candidate's default view, or for a
     layered program (gm_map.LAYERS) every layer's view with the layer gain folded into the region
@@ -670,23 +779,30 @@ def load_program_view(num, name=None):
     from .gm_map import LAYERS, PROGRAMS
     p = PROGRAMS[num]
     if num in LAYERS:
-        out = []
-        for cand, gain, *rest in LAYERS[num]:
+        out, span = [], None
+        for n, (cand, gain, *rest) in enumerate(LAYERS[num], 1):
             pan = rest[0] if rest else 0.0
+            opts = rest[1] if len(rest) > 1 else {}
             inst = load_candidate(cand, name or p.name)
             if inst is None:
                 continue
-            for r in default_view(inst):
+            view = default_view(inst)
+            keyed = [r for r in view if r.pitch_keycenter is not None]
+            if span is None and keyed:                          # the first layer sets the range
+                span = (min(r.lokey for r in keyed), max(r.hikey for r in keyed))
+            elif opts.get('cover') and span:                    # a quiet layer that has to be on every note
+                cover_keys(view, *span)
+            for r in view:
                 r.volume_db += gain
                 r.pan = max(-100.0, min(100.0, r.pan + pan))
-                r.tags = tuple(r.tags) + (f'layer:{cand.source}:{cand.path.split("/")[-1]}',)
+                r.tags = tuple(r.tags) + (f'layer:{n}:{cand.source}:{(cand.sub or cand.path).rstrip("/").split("/")[-1]}',)
                 out.append(r)
-        return ('sustain', out) if out else None
+        return (p.cands[0].kind, _notes_only(num, p.cands[0].kind, out)) if out else None   # the brass section's first candidate is a sustain
     for c in p.cands:
         inst = load_candidate(c, name or p.name)
         if inst is None:
             continue
         view = default_view(inst)
         if view:
-            return (c.kind, view)
+            return (c.kind, _notes_only(num, c.kind, view))
     return None

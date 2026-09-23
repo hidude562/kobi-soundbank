@@ -58,15 +58,25 @@ def balance_sfz(path: str, clamp: float = 12.0) -> dict | None:
     # every note is levelled the same way, so only a wholly keyless program (an effect) is skipped
     if not regions or all(o.get('pitch_keytrack', '100') == '0' for _, o in regions):
         return None
+    # a stacked program (gm_map.LAYERS) marks each layer's regions with a '// layer:' line (kobi.compress):
+    # its notes are levelled within the layer, so the layers keep the balance they were stacked at
+    stack_of, cur = {}, None
+    for i, l in enumerate(lines):
+        if l.startswith('// layer:'):
+            cur = l[3:]
+        elif l.startswith('<region>'):
+            stack_of[i] = cur
     audio: dict = {}
     raw: dict = {}                       # note -> sample loudness
     stack: dict = {}                     # note -> volumes of the regions that sound together
     layer_of: dict = {}
-    for _, o in regions:
+    part_of: dict = {}                   # note -> stack layer
+    for i, o in regions:
         if 'offset' not in o or 'end' not in o:
             continue
         key = (o['sample'], o['offset'])
         stack.setdefault(key, []).append(float(o.get('volume', gvol)))
+        part_of.setdefault(key, stack_of.get(i))
         if key in raw:
             continue
         if o['sample'] not in audio:
@@ -83,7 +93,9 @@ def balance_sfz(path: str, clamp: float = 12.0) -> dict | None:
     levels = {k: raw[k] + 20 * np.log10(sum(10 ** (v / 20) for v in stack[k])) for k in raw}
     if len(levels) < 2:
         return None
-    deltas = plan(levels, clamp)
+    deltas = {}
+    for part in set(part_of.values()):
+        deltas.update(plan({k: v for k, v in levels.items() if part_of[k] == part}, clamp))
     written = []
     for i, o in regions:
         key = (o.get('sample'), o.get('offset'))
@@ -112,7 +124,7 @@ def balance_sfz(path: str, clamp: float = 12.0) -> dict | None:
     for k in keys:
         layers.setdefault(layer_of[k], []).append(levels[k])
     layer_spread = (max(np.median(v) for v in layers.values()) - min(np.median(v) for v in layers.values())) if len(layers) > 1 else 0.0
-    return dict(notes=len(levels), layers=len(layers), std_before=float(before.std()), std_after=float(after.std()),
+    return dict(notes=len(levels), layers=len(layers), stack_layers=len(set(part_of.values())), std_before=float(before.std()), std_after=float(after.std()),
                 layer_spread_before=float(layer_spread), max_delta=float(np.abs(list(deltas.values())).max()),
                 clamped=int(sum(1 for d in deltas.values() if abs(d) >= clamp - 1e-9)))
 

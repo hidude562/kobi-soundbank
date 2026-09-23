@@ -20,6 +20,7 @@ from .gm_map import PROGRAMS
 from .ingest import default_view, load_candidate
 from .levels import apply_gain, measure
 
+from . import paths
 from .paths import use_dctjoin
 use_dctjoin()
 from dctjoin.gm import GM_PROGRAMS  # noqa: E402  (the renderer's program names)

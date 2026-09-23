@@ -129,6 +129,10 @@ def render(sfz_path: str, events: list, seconds: float) -> np.ndarray:
     synth.set_block_size(BLOCK)
     if not synth._synth.load_sfz_file(sfz_path):
         raise RuntimeError(f'sfizz refused {sfz_path}')
+    # offline: load sample data synchronously.  Otherwise sfizz streams past its preload in a background
+    # thread, and on a busy machine a note deep in a packed Ogg can start before its audio has arrived
+    # (seen as a key measuring 12 dB low, or a wrong pitch, only when renders ran 18 at a time)
+    synth._synth.enable_freewheeling()
     events = sorted(events, key=lambda e: (e[0], e[1] == 'on'))
     n = int(seconds * FS)
     out = np.zeros((n + BLOCK, 2), dtype=np.float32)

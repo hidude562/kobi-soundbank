@@ -4,6 +4,8 @@ scipy
 soundfile
 mido
 pysfizz          # sfizz's python binding: renders demos and measures programme levels
+librosa          # pYIN: kobi.pitchcheck (compress's pitch check, kobi.audit) and kobi.pitch_audit
+sf2utils         # the swipe app reads General MIDI soundfonts (kobi/swipe/sf2.py)
 pytest
 playwright       # browser tests: python3 -m playwright install chromium (firefox optional)
 # system: ffmpeg (Vorbis and FLAC), and the dctloop/dctjoin library in vendor/sfz_compressor

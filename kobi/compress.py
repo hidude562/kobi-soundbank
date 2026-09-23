@@ -25,7 +25,7 @@ from multiprocessing import Pool
 import numpy as np
 import soundfile as sf
 
-from . import packing
+from . import packing, paths
 from .gm_map import PROGRAMS
 from .ingest import default_view, load_candidate, load_sfz, _num
 
@@ -108,6 +108,38 @@ DECAY = dict(max_attack_s=1.0, bridge_s=0.85)      # decaying notes: transient k
                                                  # taken at 1 s where the timbre has settled (chosen by ear, 2026-09-05)
 
 
+# programs whose notes have no single pitch a detector can agree on (bells, timpani, the orchestra hit's
+# chord, the fifths lead, percussion and effects -- steel drums are tuned, so they are checked): their
+# maps are trusted as they are
+NO_PITCH_CHECK = {14, 47, 55, 86} | set(range(112, 128)) - {114}
+
+
+def _pitch_fix(src: str, f0: float) -> float | None:
+    """Cents the source note really sits from ``f0`` (the pitch its map claims) when kobi.pitchcheck's
+    two detectors agree it is more than 30 cents off, else None."""
+    from .pitchcheck import deviation, onset
+    x, fs = sf.read(src, dtype='float32', always_2d=True)
+    return deviation(x[onset(x, fs):], fs, f0)
+
+
+def _check_refined(t: dict, rep, out: dict) -> None:
+    """The replication refines the pitch from ``t['f0']`` on six harmonics, and an inharmonic note (a
+    steel pan's upper modes) can pull it off: the jSteelDrum D4 takes sit 17 cents sharp and it read
+    them 32 flat, so the bank played them 50 sharp.  When kobi.pitchcheck's two detectors agree the
+    note is more than 20 cents from what the replication used, their reading sets key and tune."""
+    from dctjoin.sfz import key_and_tune
+    from .pitchcheck import deviation, onset
+    used = getattr(rep, 'f0_used', None)
+    if not used:
+        return
+    x, fs = sf.read(t['src'], dtype='float32', always_2d=True)
+    d = deviation(x[onset(x, fs):], fs, used, gate=20.0)
+    if d is None:
+        return
+    key, cents = key_and_tune(used * 2 ** (d / 1200))
+    out.update(keycenter=key, tune=-cents, pitch_fix=out.get('pitch_fix', 0.0) + 1200 * np.log2(used * 2 ** (d / 1200) / t['f0']))
+
+
 def _alarm(signum, frame):
     raise TimeoutError(f'replication exceeded {TASK_TIMEOUT_S} s')
 
@@ -125,6 +157,13 @@ def _task(t: dict) -> dict:
     signal.signal(signal.SIGALRM, _alarm)
     signal.alarm(TASK_TIMEOUT_S)
     try:
+        if t.get('check_pitch') and t['kind'] in ('sustain', 'decay'):
+            # a mislabelled note: kobi.compress refines the pitch only within +-51 cents of the map's, so
+            # it would keep the wrong key -- and loop on the wrong period.  Start from what it sounds like.
+            fix = _pitch_fix(t['src'], t['f0'])
+            if fix is not None:
+                t = dict(t, f0=t['f0'] * 2 ** (fix / 1200))
+                out['pitch_fix'] = fix
         if t['kind'] == 'sustain':
             rep = replicate_unaltered(t['src'], t['out_dir'], t['loop_s'], f0=t['f0'], format=fmt, quality=t['quality'],
                                       preview=False, sfizz=False, note_sfz=False, stem=t['stem'], bits=16,
@@ -148,6 +187,10 @@ def _task(t: dict) -> dict:
             out.update(ok=True, sample=os.path.basename(rep.outputs['audio']), keycenter=rep.keycenter, tune=-rep.tune_cents,
                        loop_start=rep.loop_start, loop_end=rep.loop_end, hold=rep.hold_s, envelope=rep.envelope, release=rep.release_sfz)
         else:
+            rep = None
+        if rep is not None and t.get('check_pitch'):
+            _check_refined(t, rep, out)
+        if rep is None and t['kind'] not in ('sustain', 'decay'):
             add = _transcode(t['sources'], t['gains'], dst, t['quality'], lossless=pack, max_s=MAX_ONESHOT_S)
             out.update(ok=True, sample=os.path.basename(dst), add_db=add)
         for j in glob.glob(os.path.join(t['out_dir'], t['stem'] + '*.json')):
@@ -194,8 +237,9 @@ def _region_line(r, res: dict, kind: str, key_override: int | None = None) -> li
             else f'key={r.lokey} pitch_keytrack=0'
         line = f"<region> sample={res['sample']} {key} lovel={r.lovel} hivel={r.hivel} loop_mode=one_shot" if kind in ('oneshot', 'kit') \
             else f"<region> sample={res['sample']} {key} lovel={r.lovel} hivel={r.hivel} ampeg_release=0.35"
-        if abs(r.tune) > 0.01:
-            line += f' tune={r.tune:g}'
+        tune = r.tune - res.get('pitch_fix', 0.0)          # a plain transcode keeps the source's map: correct it there
+        if abs(tune) > 0.01:
+            line += f' tune={tune:g}'
         if abs(vol) > 0.01:
             line += f' volume={vol:.1f}'
         return [line + pk + _extras(r)]
@@ -271,7 +315,7 @@ def compress_program(num: int, out: str, quality: float, loop_s: float, jobs: in
     if got is not None:
         kind, view = got
         c = p.cands[0]
-        source_desc = ' + '.join(f'{cc.source}:{cc.path.split("/")[-1]}' for cc, *_ in LAYERS[num]) if num in LAYERS else f'{c.source}: {c.path} {c.sub or ""}'
+        source_desc = ' + '.join(f'{cc.source}:{(cc.sub or cc.path).rstrip("/").split("/")[-1]}' for cc, *_ in LAYERS[num]) if num in LAYERS else f'{c.source}: {c.path} {c.sub or ""}'
         folder = f'{num:03d}_' + re.sub(r'[^A-Za-z0-9]+', '_', GM_PROGRAMS[num][0]).strip('_')
         out_dir = os.path.join(out, folder)
         shutil.rmtree(out_dir, ignore_errors=True)
@@ -287,8 +331,12 @@ def compress_program(num: int, out: str, quality: float, loop_s: float, jobs: in
                 per_region.append((r, cache[key]))
             else:
                 stem = f'{i:04d}_{r.pitch_keycenter}'
-                tasks.append(dict(kind=kind, src=r.sample, out_dir=out_dir, stem=stem, f0=_hz(r.pitch_keycenter, r.tune),
-                                  loop_s=loop_s, quality=quality, decay=DECAY, pack=pack, attack=ATTACK))
+                # the pitch the sample itself sounds at: a region with tune=+t plays it t cents up, so it
+                # sits t cents below its key (this was _hz(key, +t), which put the hint 2t cents off and,
+                # past ~25 cents of tune, outside the refinement's reach)
+                tasks.append(dict(kind=kind, src=r.sample, out_dir=out_dir, stem=stem, f0=_hz(r.pitch_keycenter, -r.tune),
+                                  loop_s=loop_s, quality=quality, decay=DECAY, pack=pack, attack=ATTACK,
+                                  check_pitch=num not in NO_PITCH_CHECK))
                 per_region.append((r, stem))
         t0 = time.time()
         with Pool(jobs) as pool:
@@ -302,6 +350,9 @@ def compress_program(num: int, out: str, quality: float, loop_s: float, jobs: in
         keyless = [r for r, _ in per_region if r.pitch_keycenter is None]
         keymap = {g: 60 + i for i, g in enumerate(_groupby(keyless, lambda r: tuple(t for t in r.tags if t not in _MICS)))}
         n_ok = n_fb = n_fail = 0
+        fixes = sorted({(r.pitch_keycenter, round(results[stem]['pitch_fix']), os.path.basename(r.sample)) for r, stem in per_region
+                        if results[stem].get('pitch_fix') is not None})
+        layer = None
         for r, stem in per_region:
             res = results[stem]
             if not res.get('sample'):
@@ -309,6 +360,10 @@ def compress_program(num: int, out: str, quality: float, loop_s: float, jobs: in
                 continue
             n_ok += res.get('ok', False)
             n_fb += bool(res.get('fallback'))
+            tag = next((t for t in r.tags if t.startswith('layer:')), None)
+            if tag and tag != layer:                  # a stack: kobi.balance levels each layer on its own
+                lines.append(f'// {tag}')
+                layer = tag
             ko = keymap[tuple(t for t in r.tags if t not in _MICS)] if r.pitch_keycenter is None else None
             lines += _region_line(r, res, kind, ko)
         os.makedirs(os.path.join(out, 'GM'), exist_ok=True)
@@ -321,7 +376,8 @@ def compress_program(num: int, out: str, quality: float, loop_s: float, jobs: in
         ogg_bytes = sum(os.path.getsize(os.path.join(out_dir, f)) for f in os.listdir(out_dir) if f.endswith('.ogg'))
         errs = [res['error'] for res in results.values() if res.get('error')][:3]
         return dict(num=num, name=p.name, kind=kind, source=source_desc, regions=len(view), files=len(tasks), ok=n_ok,
-                    fallback=n_fb, failed=n_fail, src_mb=src_bytes / 1e6, ogg_mb=ogg_bytes / 1e6, seconds=time.time() - t0, errors=errs)
+                    fallback=n_fb, failed=n_fail, src_mb=src_bytes / 1e6, ogg_mb=ogg_bytes / 1e6, seconds=time.time() - t0, errors=errs,
+                    pitch_fixes=fixes)
     return None
 
 
@@ -375,6 +431,7 @@ def compress_drums(out: str, quality: float, jobs: int, pack: bool = PACK, keep_
 def _row(r: dict) -> str:
     return (f"{str(r['num']):>5} {r['name']:24s} {r['kind']:8s} {r['regions']:5d} rgn {r['files']:5d} files  ok {r['ok']:5d} fb {r['fallback']:3d} "
             f"fail {r['failed']:3d}  {r['src_mb']:7.1f} MB -> {r['ogg_mb']:6.1f} MB ({r['src_mb'] / max(r['ogg_mb'], 1e-9):5.1f}x)  {r['seconds']:5.0f}s"
+            + (f"  pitch fixed on {len(r['pitch_fixes'])}" if r.get('pitch_fixes') else '')
             + (f"  e.g. {r['errors'][0]}" if r['errors'] else ''))
 
 
@@ -423,6 +480,10 @@ def main(argv=None) -> int:
         release.cap_bank(a.out)              # sustained notes release like an instrument, not like a hall
         if os.path.exists(os.path.join(a.out, 'GM', 'Drums.sfz')):
             kit.tidy_kit(os.path.join(a.out, 'GM', 'Drums.sfz'))   # one take per hit; Latin percussion decays
+            if a.drums or a.all:                                   # each piece at the level kobi.drums chose for it
+                fixed = kit.level_kit(os.path.join(a.out, 'GM', 'Drums.sfz'), kit.targets_from(os.path.join(BANK, 'Drums.sfz')))
+                if fixed:
+                    print('kit pieces re-levelled (dB):', ' '.join(f'{k}:{d:+g}' for k, d in sorted(fixed.items())), flush=True)
         dedupe.dedupe_bank(a.out)            # one note per key and velocity before the map is extended
         extend.extend_bank(a.out)
         write_sizes_md(a.out)
@@ -447,6 +508,11 @@ def write_sizes_md(out: str) -> None:
         md += [f"| {r['num']} | {r['name']} | {r['kind']} | {r['source']} | {r['regions']} | {r['files']} | {r['fallback']} | "
                f"{r['src_mb']:.1f} | {r['ogg_mb']:.2f} | {r['src_mb'] / max(r['ogg_mb'], 1e-9):.1f}x |" for r in rows]
         md += ['', f'**Total: {src:.0f} MB -> {ogg:.1f} MB ({src / max(ogg, 1e-9):.0f}x), {sum(r["files"] for r in rows)} files.**']
+        fixed = [r for r in rows if r.get('pitch_fixes')]
+        if fixed:
+            md += ['', '## Notes retuned from their maps', '', 'Source notes that kobi.pitchcheck\'s two detectors agree sit more than 30 cents '
+                   'from the pitch their map gives (keycenter, cents, file); compressed from the pitch they really have.', '']
+            md += [f"- {r['num']} {r['name']}: " + ', '.join(f'{k} {c:+d}c {f}' for k, c, f in r['pitch_fixes']) for r in fixed]
         with open(os.path.join(out, 'SIZES.md'), 'w') as fh:
             fh.write('\n'.join(md) + '\n')
 

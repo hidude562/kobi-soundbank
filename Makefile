@@ -9,6 +9,8 @@
 #   make demos           the demo MIDIs rendered through sfizz from kobi_slim
 #   make web-test        the browser tests (Chromium via playwright)
 #   make serve           a Range-capable static server for the web players on :8080
+#   make swipe           the swipe app: judge each program's sound, pull up alternatives (:8791)
+#   make audit           every key of kobi_slim rendered: pitch and loudness per note -> kobi_slim/AUDIT.md
 #
 # Paths come from kobi/paths.py (KOBI_ROOT, KOBI_SOURCES, KOBI_SSO, KOBI_DCTJOIN, KOBI_MIDIS).
 PY ?= python3
@@ -17,7 +19,7 @@ FULL = kobi_ogg kobi_ogg_lite kobi_ogg_lite25
 DERIVED = kobi_slim kobi_slim_lite kobi_slim_lite25 kobi_ultra kobi_ultra_hifi kobi_ultra_hifi_pf
 ALL = $(FULL) $(DERIVED)
 
-.PHONY: all deps test banks finish derive index demos web-test serve clean-outputs clean-caches
+.PHONY: all deps test banks finish derive index audit demos web-test serve swipe clean-outputs clean-caches
 
 all: banks finish derive index
 
@@ -35,10 +37,12 @@ banks:
 	$(PY) -m kobi.compress --all --loop 0.2 --attack 0.25 --decay-attack 1.0  --decay-bridge 0.85 -j $(J) --out kobi_ogg_lite
 	$(PY) -m kobi.compress --all --loop 0.2 --attack 0.25 --decay-attack 0.25 --decay-bridge 0.18 -j $(J) --out kobi_ogg_lite25
 
-# every note of a programme at the programme's loudness, every programme at -23 LUFS, every key covered
+# every note of a programme at the programme's loudness, decaying zones fading alike, every programme at
+# -23 LUFS, every key covered
 finish:
 	for b in $(FULL); do \
 	  $(PY) -m kobi.balance $$b --clamp 60 && \
+	  $(PY) -m kobi.evendecay $$b && \
 	  $(PY) -m kobi.levels --bank $$b/GM --max-gain 80 && mv $$b/GM/LEVELS.md $$b/LEVELS.md && \
 	  $(PY) -m kobi.extend $$b || exit 1; \
 	done
@@ -54,6 +58,10 @@ derive:
 index:
 	$(PY) -m kobi.slices $(ALL) --verify --sample 0.05
 	$(PY) -m kobi.manifest $(ALL)
+	$(PY) -m kobi.attribution $(ALL)
+
+audit:
+	$(PY) -m kobi.audit kobi_slim -j $(J)
 
 demos:
 	mkdir -p renders_slim
@@ -70,6 +78,9 @@ web-test:
 
 serve:
 	$(PY) kobi_web/test/rangeserver.py 8080 $(CURDIR)
+
+swipe:
+	$(PY) -m kobi.swipe
 
 # rendered audio is regenerable; the banks, and demo/GM + demo/sfz (the maps `make banks` reads), stay
 clean-outputs:

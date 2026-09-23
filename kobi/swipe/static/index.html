@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Kobi Sound Swipe</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="dot"></span>kobi&nbsp;swipe</div>
+  <div class="tally" id="tally">—</div>
+  <button class="ghost" id="listBtn" aria-haspopup="dialog">List</button>
+</header>
+
+<main class="stage">
+  <div class="stack" id="stack" aria-live="polite"></div>
+
+  <div class="controls" role="toolbar" aria-label="Verdict">
+    <button class="round small" id="backBtn" title="Back to the previous instrument (↑)" aria-label="Back">
+      <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>
+    <button class="round big nope" id="noneBtn" title="None of these — next instrument (←)" aria-label="None of these">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <button class="round mid cycle" id="nextBtn" title="Next version (Space; Shift+Space goes back)" aria-label="Next version">
+      <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.6L4 15"/><path d="M4 20v-5h5"/></svg>
+    </button>
+    <button class="round big like" id="pickBtn" title="This one (→)" aria-label="This one">
+      <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+    </button>
+    <button class="round small" id="skipBtn" title="Decide later (↓)" aria-label="Skip">
+      <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+  <p class="keys"><kbd>space</kbd> next version · <kbd>⇧ space</kbd> previous · <kbd>→</kbd> this one · <kbd>←</kbd> none of these ·
+    <kbd>↑</kbd> back · <kbd>↓</kbd> skip · <kbd>enter</kbd> replay · hold <kbd>C</kbd> bank now · <kbd>N</kbd> note</p>
+  <p class="keys touch">tap the card for the next version · swipe right: this one · left: none of these · ✎ adds a note</p>
+</main>
+
+<footer class="net" id="net"></footer>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h1>Swipe the bank</h1>
+    <p>One card per instrument. It starts on the sound the slim bank plays now; press space (or tap the card) to
+      cycle through the same instrument from other free banks and libraries, fetched a few samples at a time.
+      Swipe right on the version you want, left if none of them is right.</p>
+    <button class="primary" id="startBtn">Start listening</button>
+  </div>
+</div>
+
+<dialog id="list" class="sheet">
+  <div class="sheet-head">
+    <h2>All programs</h2>
+    <div class="filters" role="group" aria-label="Filter">
+      <button data-f="all" class="on">All</button><button data-f="picked">Replaced</button><button data-f="kept">Kept</button>
+      <button data-f="none">None of these</button><button data-f="skipped">Skipped</button><button data-f="open">Not rated</button>
+    </div>
+    <button class="ghost" id="closeList">Close</button>
+  </div>
+  <div class="sheet-body"><table id="listTable"><tbody></tbody></table></div>
+</dialog>
+
+<script src="/app.js"></script>
+</body>
+</html>

@@ -7,6 +7,10 @@ voices alive at once, the polyphony cap cutting them off).  A General MIDI instr
 well under a second; this step caps ``ampeg_release`` of looped, sustaining regions at ``MAX_S``.
 Decaying notes (piano and friends, with ``ampeg_hold``) keep their pedal-aware release.
 
+Held sounds -- the string ensembles and synth strings, the choirs and synth voice, the pads -- are
+meant to hang on after the key: theirs are doubled after the cap (0.25 s -> 0.5 s, 0.5 s -> 1 s), once
+per compressed file (a marker line says so; recompressing a program rewrites it without one).
+
     python3 -m kobi.release kobi_ogg kobi_slim ...
 """
 from __future__ import annotations
@@ -19,19 +23,37 @@ from . import paths
 
 MAX_S = 0.5
 _REL = re.compile(r'(?<!\S)ampeg_release=([\d.]+)')
+HELD = set(range(48, 55)) | set(range(88, 96))      # string ensembles, synth strings, choirs, synth voice, pads
+HELD_SCALE = 2.0
+HELD_MARK = '// kobi.release: a held sound, its sustaining releases doubled'
 
 
-def cap_line(line: str, max_s: float = MAX_S) -> str:
+def cap_line(line: str, max_s: float = MAX_S, scale: float = 1.0) -> str:
     if not line.startswith('<region>') or 'ampeg_hold=' in line or 'loop_mode=loop_continuous' not in line and 'loop_start=' not in line:
         return line
+    if scale != 1.0:
+        return _REL.sub(lambda m: f'ampeg_release={min(float(m.group(1)), max_s) * scale:.3f}', line)
     return _REL.sub(lambda m: f'ampeg_release={min(float(m.group(1)), max_s):.3f}' if float(m.group(1)) > max_s else m.group(0), line)
 
 
+def _program(path: str) -> int | None:
+    m = re.match(r'(\d{3}) ', os.path.basename(path))
+    return int(m.group(1)) if m else None
+
+
 def cap_sfz(path: str, max_s: float = MAX_S) -> int:
-    lines = open(path).read().split('\n')
-    out = [cap_line(l, max_s) for l in lines]
+    text = open(path).read()
+    lines = text.split('\n')
+    if _program(path) in HELD:
+        if HELD_MARK in text:                       # doubled already: hold them to the doubled cap
+            out = [cap_line(l, max_s * HELD_SCALE) for l in lines]
+        else:
+            out = [cap_line(l, max_s, HELD_SCALE) for l in lines]
+            out.insert(next((i for i, l in enumerate(out) if l.startswith('<')), 0), HELD_MARK)
+    else:
+        out = [cap_line(l, max_s) for l in lines]
     n = sum(1 for a, b in zip(lines, out) if a != b)
-    if n:
+    if out != lines:
         with open(path, 'w') as fh:
             fh.write('\n'.join(out))
     return n

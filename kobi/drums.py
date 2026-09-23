@@ -67,6 +67,51 @@ def B(key, tune=0.0, family='snare', standin=False):
     return Piece('BigRusty', str(key), (), tune, family, standin)
 
 
+# a GM-mapped SFZ kit picked in the swipe app (SWIPE_PICKS.json, program 128) as the core: every GM key it
+# maps comes from it; the kit keys it lacks borrow its own nearest piece, retuned (like Big Rusty's splash)
+PICK_FAMILY = {35: 'kick', 36: 'kick', 41: 'tom', 42: 'hat', 43: 'tom', 44: 'hat', 45: 'tom', 46: 'hat', 47: 'tom',
+               48: 'tom', 49: 'cymbal', 50: 'tom', 51: 'cymbal', 52: 'cymbal', 53: 'cymbal', 55: 'cymbal', 57: 'cymbal',
+               59: 'cymbal', 54: 'aux', 56: 'aux', 58: 'aux', 39: 'aux'}
+PICK_STANDINS = {35: (36, -1), 41: (43, -2), 55: (49, 3), 57: (49, 1), 59: (51, -1)}
+_pick_core = None               # (path, title, playable regions, control)
+
+
+def _picked_kit():
+    """The kit pick from SWIPE_PICKS.json: (sfz path, title) or None."""
+    import json
+    path = os.path.join(paths.ROOT, 'SWIPE_PICKS.json')
+    if not os.path.exists(path):
+        return None
+    with open(path) as fh:
+        row = json.load(fh).get('128') or {}
+    pick = row.get('pick') if row.get('verdict') == 'replace' else None
+    if not pick or not pick.get('loc', {}).get('rel'):
+        return None
+    return os.path.join(ROOT, pick['root'], pick['loc']['rel']), f"{pick.get('lib_title', pick['title'])} ({pick.get('license', '')})"
+
+
+def _pick():
+    global _pick_core
+    if _pick_core is None:
+        got = _picked_kit()
+        if got is None:
+            raise SystemExit('--core pick: no kit picked in SWIPE_PICKS.json (program 128)')
+        inst = load_sfz(got[0])
+        _pick_core = (got[0], got[1], default_view(inst), inst.control)
+    return _pick_core
+
+
+def pick_core() -> dict:
+    """{GM key: [Piece]} for the keys the picked kit maps, plus retuned stand-ins for missing kit keys."""
+    _, _, view, _ = _pick()
+    have = {k for r in view if r.trigger == 'attack' for k in range(r.lokey, r.hikey + 1) if k in GM_DRUMS}
+    core = {k: [Piece('Pick', str(k), (), 0.0, PICK_FAMILY.get(k, 'snare'))] for k in sorted(have)}
+    for k, (src, tune) in PICK_STANDINS.items():
+        if k not in have and src in have:
+            core[k] = [Piece('Pick', str(src), (), float(tune), PICK_FAMILY.get(k, 'snare'), True)]
+    return core
+
+
 # Big Rusty Drums (Karoryfer, CC0): kick, side stick, snare, rimshot, toms, hi-hats, crash, ride and bell already
 # sit on their GM keys; china (57), sizzle crash (65) and sizzle ride (60) move to 52, 57 and 59
 BIGRUSTY_CORE = {
@@ -192,18 +237,24 @@ def piece_regions(p: Piece) -> list:
         regs = _muldjord_regions(p.path)
     elif p.source == 'BigRusty':
         regs = [r for r in _bigrusty_regions(int(p.path)) if r.volume_db + static_amplitude_db(r, _bigrusty_control()) > SILENT_DB]
+    elif p.source == 'Pick':
+        _, _, view, control = _pick()
+        key = int(p.path)
+        regs = [r for r in view if r.trigger == 'attack' and r.lokey <= key <= r.hikey
+                and r.volume_db + static_amplitude_db(r, control) > SILENT_DB]
     else:
         inst = load_folder(os.path.join(ROOT, p.path), source=p.source)
         regs = [r for r in default_view(inst) if _tag_ok(r, p.tags)]
     return regs
 
 
-def _region_line(r: Region, key: int, tune: float, gain_db: float) -> str:
+def _region_line(r: Region, key: int, tune: float, gain_db: float, control: dict | None = None) -> str:
     op = [f'<region> sample={r.sample}', f'key={key} pitch_keytrack=0 loop_mode=one_shot lovel={r.lovel} hivel={r.hivel}']
     t = r.tune + 100 * tune
     if abs(t) > 0.01:
         op.append(f'tune={t:g}')
-    vol = r.volume_db + gain_db + (static_amplitude_db(r, _bigrusty_control()) if any(_AMP_CC.match(k) for k in r.opcodes) or 'amplitude' in r.opcodes else 0.0)
+    amp = any(_AMP_CC.match(k) for k in r.opcodes) or 'amplitude' in r.opcodes
+    vol = r.volume_db + gain_db + (static_amplitude_db(r, control if control is not None else _bigrusty_control()) if amp else 0.0)
     if abs(vol) > 0.01:
         op.append(f'volume={vol:.1f}')
     if r.seq_length > 1:
@@ -240,8 +291,11 @@ def build(out: str, target: float = -23.0, max_gain: float = 40.0, core: str = '
         kit.update(BIGRUSTY_CORE)
         for key in (38, 42, 49):
             print(f'  fader model check, key {key}: extracted - original = {verify_bigrusty(key):+.2f} dB', flush=True)
-    rows, lines = [], [f'// kobi GM drum kit: {"Big Rusty Drums (Karoryfer, CC0)" if core == "bigrusty" else "Muldjord kit (FreePats, CC BY 4.0)"} '
-                       'remapped to GM keys + VCSL percussion (CC0)', '<global> ampeg_release=0.1']
+    elif core == 'pick':
+        kit.update(pick_core())
+    title = {'bigrusty': 'Big Rusty Drums (Karoryfer, CC0)', 'muldjord': 'Muldjord kit (FreePats, CC BY 4.0)'}.get(core) or \
+        (_pick()[1] + ', picked in kobi.swipe')
+    rows, lines = [], [f'// kobi GM drum kit: {title} remapped to GM keys + VCSL percussion (CC0)', '<global> ampeg_release=0.1']
     for key, cands in kit.items():
         chosen, regs = None, []
         for p in cands:
@@ -252,11 +306,17 @@ def build(out: str, target: float = -23.0, max_gain: float = 40.0, core: str = '
         if not regs:
             rows.append(dict(key=key, name=GM_DRUMS[key], source='MISSING', regions=0, lufs=-np.inf, gain=0.0, standin=False, piece=''))
             continue
-        raw = [_region_line(r, key, chosen.tune, 0.0) for r in regs]
-        lufs = _measure_key(lines[:2] + raw, key)
+        control = _pick()[3] if chosen.source == 'Pick' else None
+        raw = [_region_line(r, key, chosen.tune, 0.0, control) for r in regs]
+        # measured as it will play: kobi.kit later drops takes on a broader velocity window than their
+        # neighbours (they would sound on top), turns the rest into round robins and shortens Latin
+        # percussion -- measured on the raw lines, the open triangle's six stacked takes set its gain
+        # and it came out 21 dB under the kit
+        from .kit import tidy_lines
+        lufs = _measure_key(tidy_lines(lines[:2] + raw)[0], key)
         gain = 0.0 if not np.isfinite(lufs) else float(np.clip(target + OFFSET.get(chosen.family, 0.0) - lufs, -max_gain, max_gain))
         lines += [f'// {key} {GM_DRUMS[key]}: {chosen.source} {chosen.path.split("/")[-1]} {" ".join(chosen.tags)} '
-                  f'({len(regs)} regions, {lufs:.1f} LUFS, gain {gain:+.1f} dB)'] + [_region_line(r, key, chosen.tune, gain) for r in regs]
+                  f'({len(regs)} regions, {lufs:.1f} LUFS, gain {gain:+.1f} dB)'] + [_region_line(r, key, chosen.tune, gain, control) for r in regs]
         vels = len({(r.lovel, r.hivel) for r in regs})
         rr = max(r.seq_length for r in regs)
         rows.append(dict(key=key, name=GM_DRUMS[key], source=chosen.source, piece=chosen.path.split('/')[-1] + (' ' + ' '.join(chosen.tags) if chosen.tags else ''),
@@ -282,9 +342,12 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('-o', '--out', default=os.path.join(paths.ROOT, 'demo', 'GM', 'Drums.sfz'))
     ap.add_argument('-t', '--target', type=float, default=-23.0)
-    ap.add_argument('--core', choices=('bigrusty', 'muldjord'), default='bigrusty')
+    ap.add_argument('--max-gain', type=float, default=60.0, help='clamp for a key\'s gain, dB (VCSL guiros and triangles, '
+                    'shortened by kobi.kit, measure -70 LUFS and more; the compressor normalises the audio, so gain costs no resolution)')
+    ap.add_argument('--core', choices=('bigrusty', 'muldjord', 'pick'), default='bigrusty',
+                    help="pick: the GM kit picked in the swipe app (SWIPE_PICKS.json, program 128)")
     a = ap.parse_args(argv)
-    rows = build(a.out, a.target, core=a.core)
+    rows = build(a.out, a.target, a.max_gain, core=a.core)
     missing = [r for r in rows if r['source'] == 'MISSING']
     print(f"{len(rows) - len(missing)}/{len(rows)} GM keys covered, {sum(1 for r in rows if r['standin'])} stand-ins; wrote {a.out}")
     return 1 if missing else 0

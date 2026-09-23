@@ -24,6 +24,7 @@ from . import paths
 
 _OP = re.compile(r'(?<!\S)([\w]+)=(\S+)')
 MARKER = '// kobi.extend: the nearest sampled key copied into every hole of the key x velocity map'
+FILL_KEYS = 4        # keys per copied region, so its transposition loudness correction fits every key it plays
 
 
 def strip_fills(lines: list[str]) -> list[str]:
@@ -45,9 +46,14 @@ def strip_fills(lines: list[str]) -> list[str]:
 
 def _cells(lines: list[str]):
     """Regions grouped by (lokey, hikey, lovel, hivel): stacked envelopes and round robins of one
-    note share a cell and are copied together.  None for a keyless program."""
+    note share a cell and are copied together.  None for a keyless program.  In a stacked program
+    (``// layer:`` lines, kobi.compress) each layer has cells of its own."""
     cells: dict = {}
+    layer = None
     for i, l in enumerate(lines):
+        if l.startswith('// layer:'):
+            layer = l[3:]
+            continue
         if not l.startswith('<region>'):
             continue
         o = dict(_OP.findall(l))
@@ -58,7 +64,7 @@ def _cells(lines: list[str]):
         lo, hi = int(o.get('lokey', key if key is not None else 0)), int(o.get('hikey', key if key is not None else 127))
         lv, hv = int(o.get('lovel', 1)), int(o.get('hivel', 127))
         kc = int(o.get('pitch_keycenter', key if key is not None else (lo + hi) // 2))
-        c = cells.setdefault((lo, hi, lv, hv), dict(lo=lo, hi=hi, lv=lv, hv=hv, kc=kc, lines=[]))
+        c = cells.setdefault((layer, lo, hi, lv, hv), dict(lo=lo, hi=hi, lv=lv, hv=hv, kc=kc, layer=layer, lines=[]))
         c['kc'] = min(c['kc'], kc)
         c['lines'].append(i)
     return list(cells.values())                      # empty for a wholly keyless program (an effect)
@@ -117,11 +123,13 @@ def extend_sfz(path: str) -> int | None:
     # holes, keyed by (donor, velocity window) -> keys, then runs of adjacent keys -> one rectangle each
     groups: dict = {}
     filled = 0
-    for k in range(128):
-        for lv, hv in _uncovered(cells, k):
-            for d, a, b in _donors(cells, k, lv, hv):
-                groups.setdefault((id(d), a, b), (d, []))[1].append(k)
-            filled += hv - lv + 1
+    for layer in dict.fromkeys(c['layer'] for c in cells):   # a stack: every layer covers the whole map
+        part = [c for c in cells if c['layer'] == layer]
+        for k in range(128):
+            for lv, hv in _uncovered(part, k):
+                for d, a, b in _donors(part, k, lv, hv):
+                    groups.setdefault((id(d), a, b), (d, []))[1].append(k)
+                filled += hv - lv + 1
     if not filled:
         if '\n'.join(lines) != text:
             with open(path, 'w') as fh:
@@ -134,6 +142,9 @@ def extend_sfz(path: str) -> int | None:
             if b != a + 1:
                 runs.append((start, a))
                 start = b
+        # at most FILL_KEYS keys a copy: _compensate levels a copy at its middle key, and one copy for
+        # the 42 keys under a guitar put the correction for 21 semitones down on the low E as well
+        runs = [(a, min(hi, a + FILL_KEYS - 1)) for lo, hi in runs for a in range(lo, hi + 1, FILL_KEYS)]
         for lo, hi in runs:
             for i in d['lines']:
                 new_lines.append(_copy(lines[i], lo, hi, lv, hv))

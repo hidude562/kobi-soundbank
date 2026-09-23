@@ -45,14 +45,27 @@ Paths are resolved by [`kobi/paths.py`](kobi/paths.py) relative to the repositor
 2. **Compression** — `kobi.compress` runs every note through dctjoin: sustains keep a short attack and a
    harmonic bridge into an untouched loop, decaying notes are flattened, looped and given back their
    decay as stacked SFZ envelopes.  Notes are packed one Ogg per program (`kobi/packing.py`, 100 ms
-   pages).  At the end of a build: `release` caps sustain releases at 0.5 s, `kit` gives the kit one
-   take per hit and the Latin percussion a decay, `dedupe` makes one note per key and velocity,
-   `extend` gives every pitched program the full keyboard.
+   pages).  At the end of a build: `release` caps sustain releases at 0.5 s (doubled for the held
+   sounds: string ensembles, synth strings, choirs, synth voice, pads), `kit` gives the kit one
+   take per hit and the Latin percussion a decay and re-levels each piece to the level `kobi.drums`
+   chose for it, `dedupe` makes one note per key and velocity, `extend` gives every pitched program the
+   full keyboard (copies of at most 4 keys, so each copy's transposition loudness fits).
+   **Pitch:** a library's key map is not trusted blindly.  `kobi/pitchcheck.py` reads a note with two
+   detectors (pYIN and subharmonic summation) that must agree; a source note they put more than 30
+   cents from its map is compressed from the pitch it really has (the Discord GM pizzicato's top files
+   sound ~4 semitones above their names), and a replication whose own pitch refinement they put more
+   than 20 cents off is corrected (a steel pan's upper modes pull it).  Retuned notes are listed in
+   SIZES.md.  Bells, timpani, the orchestra hit, the fifths lead, percussion and effects are exempt.
 3. **Levels** (`make finish`) — `balance` brings every note of a program to the program's loudness,
    `levels` brings every program to −23 LUFS, `extend` re-fills the map.
 4. **Derivation** — `slim` fits a bank to a size target by dropping round robins, velocity layers and
    keys and, if needed, lowering codec quality, channels and rate; `postfilter` applies stronger musical
-   rules for the smallest bank.  `slices` and `manifest` write what the players need.
+   rules for the smallest bank.  `slices` and `manifest` write what the players need.  A stacked
+   program keeps every layer through `balance`, `extend` and `slim` (`// layer:` lines), and thinned
+   velocity layers always keep the one velocity 100 plays.
+5. **Audit** — `python3 -m kobi.audit kobi_slim` renders every key of every pitched program and every
+   kit piece at velocity 100 (sfizz, freewheeling) and writes AUDIT.md: pitch per note (off past 35
+   cents), loudness per note and per program.
 
 ## Web players
 
@@ -68,13 +81,39 @@ Paths are resolved by [`kobi/paths.py`](kobi/paths.py) relative to the repositor
 static server works, but one that honours `Range` (nginx, GitHub Pages, S3 — not `python -m http.server`)
 lets the song engine fetch notes instead of programs.
 
+## Swipe app: judging the sounds
+
+`python3 -m kobi.swipe` (or `make swipe`) serves a card deck at http://localhost:8791/: one card per GM program
+and the kit.  A card starts on the program's sound as the slim bank plays it (the microscopic bank and the
+uncompressed source a tap away); **space** (or a tap on the card) cycles through the same instrument from
+other banks and libraries: gm_map's own fallbacks, every other instrument in the pulled libraries whose name
+says it can play the program, and free SFZ libraries online (the sfzinstruments repositories, the Discord GM
+bank, more Iowa MIS instruments, Versilian's harp, MSLP vibes; see [SOURCES.md](SOURCES.md)).  **→** (swipe
+right) takes the version playing, **←** none of them, **↓** decides later, **↑** goes back to the previous
+instrument, Enter replays, holding C plays the bank's version at the same place.
+
+Remote instruments arrive a few samples at a time: the SFZ text first, then only the samples the preview
+phrase plays (a GitHub file, or one member of a zip read over HTTP `Range`), one stream at a time and capped
+at `--max-rate` MB/s, so a card costs 1–7 MB rather than a whole library.  The whole instrument (not the
+library) is fetched only once it is picked.  Downloads land in `uncompressed/Extra/<library>/` and
+`uncompressed/Iowa/`, the app's state and rendered previews in `uncompressed/_swipe/`.  Every preview is
+levelled to the same loudness, so the louder of two cards does not win by being louder; folder instruments
+get their octave checked by pitch detection the way `kobi.audition` does.
+
+Picks are written to `SWIPE_PICKS.json` / `SWIPE_PICKS.md`.  Once a pick's samples are all on disk,
+`kobi.gm_map` puts it first for its program, so the next `make banks` builds with it
+(`KOBI_SWIPE_PICKS=0` reads the map as written).  `--host 0.0.0.0` makes the deck reachable from a phone.
+
 ## Licence
 
-The banks are built from CC0 libraries (FreePats, VCSL, Karoryfer, VSCO 2 CE, and the CC0 celeste
-samples in the Sonatina Symphonic Orchestra repository) and the University of Iowa samples, which may be
-used for any project without restrictions, so they can be redistributed without attribution.  The default
-drum kit is Big Rusty Drums (Karoryfer, CC0) with VCSL percussion.  Two FreePats sets that do need
-attribution are only fallbacks and are not in the banks as built: the Salamander Grand Piano (CC BY 3.0,
-Alexander Holm), used only if the VCSL Steinway B is missing, and the Muldjord kit (CC BY 4.0), used only by
-`kobi.drums --core muldjord`.  See [SOURCES.md](SOURCES.md).  The code in `kobi/` and `kobi_web/` is MIT,
-see [LICENSE](LICENSE).
+The code in `kobi/` and `kobi_web/` is MIT, see [LICENSE](LICENSE).  The banks are collections of independently
+licensed instruments: [ATTRIBUTION.md](ATTRIBUTION.md), written by `python3 -m kobi.attribution` (part of `make index`,
+which also puts a copy in every built bank), lists each program's library, author and licence, and the credits and
+notices the CC BY, CC BY-SA, CC Sampling Plus, MIT and GPL ones ask for.  Most programs come from CC0 or
+unrestricted libraries (VCSL, VSCO 2 CE, FreePats, Karoryfer, the University of Iowa samples).
+
+As mapped from the current swipe picks, a public release of a bank needs, first: the nylon guitar replaced or its
+licence found (it came with none); the Sonatina Symphonic Orchestra programs checked (CC Sampling Plus 1.0, with
+Philharmonia and unknown-provenance recordings inside the set); the FreePats steel-string guitar and the A320U voices
+distributed under the GPL; and the Sam's Sonor kit shared alike (CC BY-SA 4.0).  See [SOURCES.md](SOURCES.md) for
+where every library came from.

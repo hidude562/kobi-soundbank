@@ -1,0 +1,3079 @@
+{
+ "0": {
+  "program": 0,
+  "name": "Acoustic Grand Piano",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "4fd86f89b0ab",
+   "c36c6dd03291",
+   "e8ab02b1c427",
+   "1026d833d444",
+   "e678f12b31cf",
+   "40c2e7ebb6a0",
+   "bank",
+   "898f4714e496",
+   "5b1b81bf4a44",
+   "5dd7dd6aff0b",
+   "1ea88a309507",
+   "8e52e0e51498",
+   "dbcaa3d074bd",
+   "42956d977375"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "5e085fe89374",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Upright Piano, Knight / Sustains",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Chordophones/Zithers/Upright Piano, Knight",
+    "sub": "Sustains",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "1": {
+  "program": 1,
+  "name": "Bright Acoustic Piano",
+  "verdict": "replace",
+  "passed": [
+   "bank"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "40c2e7ebb6a0",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "UprightPianoKW-small-bright",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "FreePats",
+    "path": "Piano/UprightPianoKW-small-bright",
+    "sub": "*.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "2": {
+  "program": 2,
+  "name": "Electric Grand Piano",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "4fd86f89b0ab",
+   "45db6c1e343e"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "96881a63b3ab",
+   "lib": "Discord-GM",
+   "lib_title": "Discord SFZ GM Bank",
+   "title": "003-Electric Grand Piano",
+   "license": "CC0 / CC BY (per instrument)",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Discord GM/Melodic/003-Electric Grand Piano.sfz"
+   },
+   "root": "Extra/Discord-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "3": {
+  "program": 3,
+  "name": "Honky-tonk Piano",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "4fd86f89b0ab",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "PianoFB",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "FreePats",
+    "path": "Piano/PianoFB",
+    "sub": "*.sfz",
+    "kind": "decay",
+    "standin": true,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "4": {
+  "program": 4,
+  "name": "Electric Piano 1",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "3e8062a8c4db",
+   "lib": "Discord-GM",
+   "lib_title": "Discord SFZ GM Bank",
+   "title": "005-Electric Piano 1",
+   "license": "CC0 / CC BY (per instrument)",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Discord GM/Melodic/005-Electric Piano 1.sfz"
+   },
+   "root": "Extra/Discord-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "5": {
+  "program": 5,
+  "name": "Electric Piano 2",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "df65c546fb22",
+   "828e6e83f546",
+   "45db6c1e343e",
+   "6aa3ee2da654"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "412517ba1f54",
+   "lib": "GregSullivan-EPianos",
+   "lib_title": "Greg Sullivan E-Pianos (CP80, Pianet T, Wurlitzer)",
+   "title": "Wurlitzer EP200",
+   "license": "CC BY 3.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Wurlitzer EP200/Wurlitzer EP200.sfz"
+   },
+   "root": "Extra/GregSullivan-EPianos",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "6": {
+  "program": 6,
+  "name": "Harpsichord",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "7": {
+  "program": 7,
+  "name": "Clavinet",
+  "verdict": "keep",
+  "passed": [
+   "bank",
+   "ffc36556aeda",
+   "45db6c1e343e",
+   "df76d7b80719",
+   "6aa3ee2da654",
+   "27b579c416f2",
+   "7e563abeada9"
+  ],
+  "note": ""
+ },
+ "8": {
+  "program": 8,
+  "name": "Celesta",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "9": {
+  "program": 9,
+  "name": "Glockenspiel",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "10": {
+  "program": 10,
+  "name": "Music Box",
+  "verdict": "replace",
+  "passed": [
+   "bank"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "dba8498b29e8",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Glockenspiel",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VCSL",
+    "path": "Idiophones/Struck Idiophones/Glockenspiel",
+    "sub": null,
+    "kind": "decay",
+    "standin": true,
+    "note": "",
+    "octave": 1,
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "11": {
+  "program": 11,
+  "name": "Vibraphone",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "12": {
+  "program": 12,
+  "name": "Marimba",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "13": {
+  "program": 13,
+  "name": "Xylophone",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "14": {
+  "program": 14,
+  "name": "Tubular Bells",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "15": {
+  "program": 15,
+  "name": "Dulcimer",
+  "verdict": "replace",
+  "passed": [
+   "bank"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "326f1a999d73",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Psaltery, Bowed and Plucked",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VCSL",
+    "path": "Chordophones/Zithers/Psaltery, Bowed and Plucked",
+    "sub": null,
+    "kind": "decay",
+    "standin": true,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "16": {
+  "program": 16,
+  "name": "Drawbar Organ",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "b91bbaf93a8a",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "PercussiveOrganEmulation-20190715",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Organ/PercussiveOrganEmulation/PercussiveOrganEmulation-SFZ-20190715/PercussiveOrganEmulation-20190715.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "17": {
+  "program": 17,
+  "name": "Percussive Organ",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "18": {
+  "program": 18,
+  "name": "Rock Organ",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "19": {
+  "program": 19,
+  "name": "Church Organ",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "20": {
+  "program": 20,
+  "name": "Reed Organ",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "21": {
+  "program": 21,
+  "name": "Accordion",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "134ef737a435",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "ButtonAccordionHN",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "FreePats",
+    "path": "Organ/ButtonAccordionHN",
+    "sub": "*.sfz",
+    "kind": "sustain",
+    "standin": true,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "22": {
+  "program": 22,
+  "name": "Harmonica",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "0b91f52b714b",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Harmonica-Hohner-Super64 / Sustains",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Aerophones/Free Aerophones/Harmonica-Hohner-Super64",
+    "sub": "Sustains",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "23": {
+  "program": 23,
+  "name": "Tango Accordion",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "24": {
+  "program": 24,
+  "name": "Acoustic Guitar (nylon)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "chosen for nylon (from Downloads/Classical_Acoustic_Guitar); licence unknown, check before shipping",
+  "notes": {
+   "bank": "could be better",
+   "c1baf780d245": "chosen for nylon (from Downloads/Classical_Acoustic_Guitar); licence unknown, check before shipping"
+  },
+  "pick": {
+   "cid": "c1baf780d245",
+   "lib": "ClassicalAcousticGuitar",
+   "lib_title": "Classical Acoustic Guitar",
+   "title": "Classical Acoustic",
+   "license": "unknown: check before shipping",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": true,
+   "loc": {
+    "rel": "Classical Acoustic.sfz"
+   },
+   "root": "Extra/ClassicalAcousticGuitar",
+   "complete": true,
+   "octave": 0,
+   "note": "chosen for nylon (from Downloads/Classical_Acoustic_Guitar); licence unknown, check before shipping"
+  }
+ },
+ "25": {
+  "program": 25,
+  "name": "Acoustic Guitar (steel)",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "ab77b041fadf",
+   "61fd0df74668",
+   "35e6c269d1d6",
+   "ba2b781192d3",
+   "bank",
+   "75e6f18f67b6",
+   "f43f6ba947fb",
+   "f29290b87562",
+   "eff9bbb3ff94",
+   "b62dcb78bace",
+   "ad84f839cffe",
+   "20f41aee7fca",
+   "5e11efa3a49c",
+   "2b8711f199e0",
+   "00a1521107a9",
+   "19ad9483ddf6",
+   "1f858498937b",
+   "41adb74721f0",
+   "96ffa708e39b",
+   "5ea433cd0261",
+   "cef24b85cd5b",
+   "5fc4de1cacaa",
+   "189236a3ab88"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "ab77b041fadf",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "FSS-SteelStringGuitar-20200521",
+   "license": "GNU GPL",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Guitar/FSS-SteelStringGuitar/FSS-SteelStringGuitar-SFZ-20200521/FSS-SteelStringGuitar-20200521.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "26": {
+  "program": 26,
+  "name": "Electric Guitar (jazz)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "27": {
+  "program": 27,
+  "name": "Electric Guitar (clean)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "28": {
+  "program": 28,
+  "name": "Electric Guitar (muted)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "eff9bbb3ff94",
+   "lib": "Karoryfer.Emily",
+   "lib_title": "Emilyguitar (Karoryfer)",
+   "title": "Karoryfer.Emilyguitar.v1.001",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "Karoryfer",
+    "path": "Karoryfer.Emilyguitar.v1.001",
+    "sub": "emily_clean.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "Karoryfer/Karoryfer.Emilyguitar.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "29": {
+  "program": 29,
+  "name": "Overdriven Guitar",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "30": {
+  "program": 30,
+  "name": "Distortion Guitar",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "cef24b85cd5b",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "EGuitarFSBS-dist1 bridge 20220911",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "ElectricGuitar/EGuitarFSBS-dist1/EGuitarFSBS-dist1 SFZ+FLAC-20220911/EGuitarFSBS-dist1 bridge 20220911.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "31": {
+  "program": 31,
+  "name": "Guitar Harmonics",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "eff9bbb3ff94",
+   "lib": "Karoryfer.Emily",
+   "lib_title": "Emilyguitar (Karoryfer)",
+   "title": "Karoryfer.Emilyguitar.v1.001",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "Karoryfer",
+    "path": "Karoryfer.Emilyguitar.v1.001",
+    "sub": "emily_clean.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "Karoryfer/Karoryfer.Emilyguitar.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "32": {
+  "program": 32,
+  "name": "Acoustic Bass",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "0649f82acfbd"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "d7d4242d4311",
+   "lib": "Karoryfer.Meatbass",
+   "lib_title": "Meatbass (Karoryfer)",
+   "title": "Karoryfer.Meatbass.v1.001",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "Karoryfer",
+    "path": "Karoryfer.Meatbass.v1.001",
+    "sub": "04_pizz.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "Karoryfer/Karoryfer.Meatbass.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "33": {
+  "program": 33,
+  "name": "Electric Bass (finger)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "268de51d72bb",
+   "lib": "Discord-GM",
+   "lib_title": "Discord SFZ GM Bank",
+   "title": "034-Electric Bass (finger)",
+   "license": "CC0 / CC BY (per instrument)",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Discord GM/Melodic/034-Electric Bass (finger).sfz"
+   },
+   "root": "Extra/Discord-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "34": {
+  "program": 34,
+  "name": "Electric Bass (pick)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "35": {
+  "program": 35,
+  "name": "Fretless Bass",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "36": {
+  "program": 36,
+  "name": "Slap Bass 1",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "d00364efd42d",
+   "2c9d935b9112"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "76b8885d8f88",
+   "lib": "Karoryfer.Swagbass",
+   "lib_title": "Swagbass (Karoryfer)",
+   "title": "swagbass",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Swagbass/swagbass.sfz"
+   },
+   "root": "Karoryfer/Karoryfer.Swagbass.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "37": {
+  "program": 37,
+  "name": "Slap Bass 2",
+  "verdict": "replace",
+  "passed": [
+   "bank",
+   "553d63581a48",
+   "d00364efd42d",
+   "c0ddb01937ed"
+  ],
+  "note": "",
+  "pick": {
+   "cid": "2c9d935b9112",
+   "lib": "Karoryfer.BlackBlue",
+   "lib_title": "Black And Blue Basses (Karoryfer)",
+   "title": "Black_And_Blue_Basses_1002",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "Karoryfer",
+    "path": "Black_And_Blue_Basses_1002",
+    "sub": "03-babyblue_all.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": -1,
+    "tags": []
+   },
+   "root": "Karoryfer/Black_And_Blue_Basses_1002",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "38": {
+  "program": 38,
+  "name": "Synth Bass 1",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "39": {
+  "program": 39,
+  "name": "Synth Bass 2",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "40": {
+  "program": 40,
+  "name": "Violin",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "fb558846d22a",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Solo Violin / Arco Vib",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Strings/Solo Violin",
+    "sub": "Arco Vib",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "41": {
+  "program": 41,
+  "name": "Viola",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "need better one with clean attack"
+  },
+  "pick": {
+   "cid": "e8a9fa7f8d48",
+   "lib": "MS-Basic",
+   "lib_title": "MuseScore MS Basic",
+   "title": "Viola Expr. (variation bank 17)",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "017-041_Viola_Expr/Viola_Expr.sfz",
+    "bank": 17,
+    "preset": 41,
+    "name": "Viola Expr."
+   },
+   "root": "Extra/MS-Basic",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "42": {
+  "program": 42,
+  "name": "Cello",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "54ec5afb8c1c",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Cello Solo Legato",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Strings - Performance/Cello Solo Legato.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "43": {
+  "program": 43,
+  "name": "Contrabass",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "5f7b50a43b29",
+   "lib": "Karoryfer.Meatbass",
+   "lib_title": "Meatbass (Karoryfer)",
+   "title": "Karoryfer.Meatbass.v1.001",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "Karoryfer",
+    "path": "Karoryfer.Meatbass.v1.001",
+    "sub": "02_arco_3vel.sfz",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "Karoryfer/Karoryfer.Meatbass.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "44": {
+  "program": 44,
+  "name": "Tremolo Strings",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "c55687c33b85",
+   "lib": "Discord-GM",
+   "lib_title": "Discord SFZ GM Bank",
+   "title": "045-Tremolo Strings",
+   "license": "CC0 / CC BY (per instrument)",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Discord GM/Melodic/045-Tremolo Strings.sfz"
+   },
+   "root": "Extra/Discord-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "45": {
+  "program": 45,
+  "name": "Pizzicato Strings",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "a31fc780bc36",
+   "lib": "Discord-GM",
+   "lib_title": "Discord SFZ GM Bank",
+   "title": "046-Pizzicato Strings",
+   "license": "CC0 / CC BY (per instrument)",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Discord GM/Melodic/046-Pizzicato Strings.sfz"
+   },
+   "root": "Extra/Discord-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "46": {
+  "program": 46,
+  "name": "Orchestral Harp",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "5e47603d6bf5",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Concert Harp",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Concert Harp.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "47": {
+  "program": 47,
+  "name": "Timpani",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "0d4cf32e3450",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Timpani",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Percussion/Timpani.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "48": {
+  "program": 48,
+  "name": "String Ensemble 1",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "bd87bb38c7a5",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Celli KS",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Strings - Performance/Celli KS.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "49": {
+  "program": 49,
+  "name": "String Ensemble 2",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "e9fd231e600b",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Celli Legato",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Strings - Performance/Celli Legato.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "50": {
+  "program": 50,
+  "name": "Synth Strings 1",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "4c0c30e94b90",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "SynthStrings2 20200528",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Synthesizer/SynthStrings2/SynthStrings2 SFZ+FLAC-20200528/SynthStrings2 20200528.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "51": {
+  "program": 51,
+  "name": "Synth Strings 2",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "468d39953dff",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "SweepPad 20190813",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Synthesizer/SweepPad/SweepPad SFZ+FLAC-20190813/SweepPad 20190813.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "52": {
+  "program": 52,
+  "name": "Choir Aahs",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "aafd6d91fdeb",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Large Chorus",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Chorus - Performance/Large Chorus.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "53": {
+  "program": 53,
+  "name": "Voice Oohs",
+  "verdict": "replace",
+  "passed": [],
+  "note": "A320U Solo Vox 70% right + Voice Oohs 70% left (asked for by name)",
+  "notes": {
+   "aafd6d91fdeb": "same Large Chorus as Choir Aahs",
+   "b5aa871c905d": "A320U Solo Vox 70% right + Voice Oohs 70% left (asked for by name)"
+  },
+  "pick": {
+   "cid": "b5aa871c905d",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "A320U Solo Vox 70% right + Voice Oohs 70% left",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "stack",
+    "layers": [
+     {
+      "cid": "aa84aec2625c",
+      "gain": 0.0,
+      "pan": 70.0
+     },
+     {
+      "cid": "3e5166e85373",
+      "gain": 0.0,
+      "pan": -70.0
+     }
+    ]
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": "A320U Solo Vox 70% right + Voice Oohs 70% left (asked for by name)",
+   "layers": [
+    {
+     "cid": "aa84aec2625c",
+     "lib": "Derived",
+     "lib_title": "Made here from the libraries above",
+     "title": "A320U Solo Vox, resampled",
+     "license": "as its sources",
+     "remote": false,
+     "shape": "derived",
+     "listed": false,
+     "host": "derived",
+     "new": true,
+     "loc": {
+      "make": "resample",
+      "src": "6b2c1c0c6449",
+      "lo": 24,
+      "hi": 96,
+      "step": 3,
+      "rel": "A320U_Solo_Vox_resampled/A320U_Solo_Vox_resampled.sfz"
+     },
+     "root": "Extra/Derived",
+     "octave": 0,
+     "gain": 0.0,
+     "pan": 70.0,
+     "cover": false
+    },
+    {
+     "cid": "3e5166e85373",
+     "lib": "Derived",
+     "lib_title": "Made here from the libraries above",
+     "title": "A320U Voice Oohs, resampled",
+     "license": "as its sources",
+     "remote": false,
+     "shape": "derived",
+     "listed": false,
+     "host": "derived",
+     "new": true,
+     "loc": {
+      "make": "resample",
+      "src": "da132a67bcd0",
+      "lo": 24,
+      "hi": 96,
+      "step": 3,
+      "rel": "A320U_Voice_Oohs_resampled/A320U_Voice_Oohs_resampled.sfz"
+     },
+     "root": "Extra/Derived",
+     "octave": 0,
+     "gain": 0.0,
+     "pan": -70.0,
+     "cover": false
+    }
+   ]
+  }
+ },
+ "54": {
+  "program": 54,
+  "name": "Synth Voice",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "55": {
+  "program": 55,
+  "name": "Orchestra Hit",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "02abf0d517e2",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Orchestra Hit",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-055_Orchestra_Hit/Orchestra_Hit.sfz",
+    "bank": 0,
+    "preset": 55,
+    "name": "Orchestra Hit"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "56": {
+  "program": 56,
+  "name": "Trumpet",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "ead4a9a5b09e",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Trumpet Solo KS",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Brass - Performance/Trumpet Solo KS.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "57": {
+  "program": 57,
+  "name": "Trombone",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "05e78c6b3854",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "OldTrombone / Sustain",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Brass/OldTrombone",
+    "sub": "Sustain",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 1,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "58": {
+  "program": 58,
+  "name": "Tuba",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "b9462456553e",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Tuba KS",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Brass - Performance/Tuba KS.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "59": {
+  "program": 59,
+  "name": "Muted Trumpet",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "8af22d3e96c7",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Trumpet / harmonM-sus",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Brass/Trumpet",
+    "sub": "harmonM-sus",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 1,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "60": {
+  "program": 60,
+  "name": "French Horn",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "1f365f35c3e4",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "F Horn / sus",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Brass/F Horn",
+    "sub": "sus",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 1,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "61": {
+  "program": 61,
+  "name": "Brass Section",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "392b4cbce89a": "none good"
+  },
+  "pick": {
+   "cid": "36a7a03d71a2",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Brass 2 (variation bank 8)",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "008-061_Brass_2/Brass_2.sfz",
+    "bank": 8,
+    "preset": 61,
+    "name": "Brass 2"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "62": {
+  "program": 62,
+  "name": "Synth Brass 1",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "1be2a84f76c5",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "FluidR3 Synth Brass 3, resampled",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "resample",
+    "src": "d87df9a0062d",
+    "lo": 24,
+    "hi": 96,
+    "step": 3,
+    "stereo": true,
+    "tail": 1.5,
+    "rel": "FluidR3_Synth_Brass_3_resampled/FluidR3_Synth_Brass_3_resampled.sfz"
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "63": {
+  "program": 63,
+  "name": "Synth Brass 2",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "63ce860894dc",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Synth Brass 2",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-063_Synth_Brass_2/Synth_Brass_2.sfz",
+    "bank": 0,
+    "preset": 63,
+    "name": "Synth Brass 2"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "64": {
+  "program": 64,
+  "name": "Soprano Sax",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "8b1c880bf371",
+   "lib": "MTG-SoloSax",
+   "lib_title": "MTG Solo Sax (soprano, alto, tenor, baritone)",
+   "title": "MTG Soprano Sax",
+   "license": "CC BY 4.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "MTG Solo Saxophones/MTG Soprano Sax.sfz"
+   },
+   "root": "Extra/MTG-SoloSax",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "65": {
+  "program": 65,
+  "name": "Alto Sax",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "9dc349ec75bf",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Saxello / Non-Vibrato",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Aerophones/Reed Aerophones/Saxello",
+    "sub": "Non-Vibrato",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "66": {
+  "program": 66,
+  "name": "Tenor Sax",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "b94102e27982",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Tenor Saxophone / Non-Vibrato",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Aerophones/Reed Aerophones/Tenor Saxophone",
+    "sub": "Non-Vibrato",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "67": {
+  "program": 67,
+  "name": "Baritone Sax",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "weird percussive sounds for c and g? find other alternatives"
+  },
+  "pick": {
+   "cid": "3c14d8244059",
+   "lib": "MS-Basic",
+   "lib_title": "MuseScore MS Basic",
+   "title": "Baritone Sax Expr. (variation bank 17)",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "017-067_Baritone_Sax_Expr/Baritone_Sax_Expr.sfz",
+    "bank": 17,
+    "preset": 67,
+    "name": "Baritone Sax Expr."
+   },
+   "root": "Extra/MS-Basic",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "68": {
+  "program": 68,
+  "name": "Oboe",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "37009281f2ef",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Oboe / Vib",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Woodwinds/Oboe",
+    "sub": "Vib",
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "69": {
+  "program": 69,
+  "name": "English Horn",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "bdc9ca6ab2a1",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Cor Anglais",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "SSO",
+    "path": "Cor Anglais",
+    "sub": null,
+    "kind": "sustain",
+    "standin": true,
+    "note": "SSO fork sample (check provenance before release)",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "70": {
+  "program": 70,
+  "name": "Bassoon",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "97a8c60a8d00",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Bassoon Solo KS",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Woodwinds - Performance/Bassoon Solo KS.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "71": {
+  "program": 71,
+  "name": "Clarinet",
+  "verdict": "keep",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "cd985e9762b6": "too orchestral? find something with vib but not too reverby"
+  }
+ },
+ "72": {
+  "program": 72,
+  "name": "Piccolo",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "764aee8bc4f7",
+   "lib": "SSO",
+   "lib_title": "Sonatina Symphonic Orchestra",
+   "title": "Piccolo Solo KS",
+   "license": "CC Sampling Plus 1.0 (provenance caveats)",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Woodwinds - Performance/Piccolo Solo KS.sfz"
+   },
+   "root": "Sonatina Symphonic Orchestra",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "73": {
+  "program": 73,
+  "name": "Flute",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "668cebc1148c",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Flute / susNV",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Woodwinds/Flute",
+    "sub": "susNV",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 1,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "74": {
+  "program": 74,
+  "name": "Recorder",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "75": {
+  "program": 75,
+  "name": "Pan Flute",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "f8e9ac8d86ec": "combine this and the overblow maybe?"
+  },
+  "pick": {
+   "cid": "1e0c0ef0f954",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "Recorder + overblown flute, faint (24 dB under)",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "stack",
+    "layers": [
+     {
+      "cid": "f8e9ac8d86ec",
+      "gain": 0.0
+     },
+     {
+      "cid": "932e656d6a4a",
+      "gain": -35.4,
+      "cover": true
+     }
+    ]
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": "",
+   "layers": [
+    {
+     "cid": "f8e9ac8d86ec",
+     "lib": "VCSL",
+     "lib_title": "Versilian Community Sample Library",
+     "title": "Baroque Alto Recorder / SusVib",
+     "license": "CC0 1.0",
+     "remote": false,
+     "shape": "folder",
+     "listed": false,
+     "host": "local-folder",
+     "new": false,
+     "loc": {
+      "path": "Aerophones/Edge-blown Aerophones/Baroque Alto Recorder",
+      "sub": "SusVib",
+      "tags": []
+     },
+     "root": "VCSL",
+     "octave": 1,
+     "gain": 0.0,
+     "pan": 0.0,
+     "cover": false
+    },
+    {
+     "cid": "932e656d6a4a",
+     "lib": "GTownChurch",
+     "lib_title": "G-Town Church Sampling Project",
+     "title": "Overblown Flute Staccs",
+     "license": "CC Sampling Plus 1.0",
+     "remote": true,
+     "shape": "sfz",
+     "listed": false,
+     "host": "github",
+     "new": false,
+     "loc": {
+      "rel": "G-Town Church Sampling Project/Overblown_Flute_Staccs.sfz"
+     },
+     "root": "Extra/GTownChurch",
+     "octave": 0,
+     "gain": -35.4,
+     "pan": 0.0,
+     "cover": true
+    }
+   ]
+  }
+ },
+ "76": {
+  "program": 76,
+  "name": "Blown Bottle",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "c1de1c70dda1",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "Ocarina",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "FreePats",
+    "path": "Wind/Ocarina",
+    "sub": "*.sfz",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "77": {
+  "program": 77,
+  "name": "Shakuhachi",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "78": {
+  "program": 78,
+  "name": "Whistle",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "b7270f7ad132",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Ocarina, Typical / Sustains",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Aerophones/Edge-blown Aerophones/Ocarina, Typical",
+    "sub": "Sustains",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "79": {
+  "program": 79,
+  "name": "Ocarina",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "80": {
+  "program": 80,
+  "name": "Lead 1 (square)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "81": {
+  "program": 81,
+  "name": "Lead 2 (sawtooth)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "need better"
+  },
+  "pick": {
+   "cid": "d1f029dd548a",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "FluidR3 Saw Wave, resampled",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "resample",
+    "src": "03f04826236c",
+    "lo": 24,
+    "hi": 96,
+    "step": 3,
+    "stereo": true,
+    "tail": 1.5,
+    "rel": "FluidR3_Saw_Wave_resampled/FluidR3_Saw_Wave_resampled.sfz"
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "82": {
+  "program": 82,
+  "name": "Lead 3 (calliope)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "83": {
+  "program": 83,
+  "name": "Lead 4 (chiff)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "need better"
+  },
+  "pick": {
+   "cid": "eb216ca9c3ea",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "MS Basic Chiffer Lead, resampled",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "resample",
+    "src": "3080f4d38e80",
+    "lo": 24,
+    "hi": 96,
+    "step": 3,
+    "stereo": true,
+    "tail": 1.5,
+    "rel": "MS_Basic_Chiffer_Lead_resampled/MS_Basic_Chiffer_Lead_resampled.sfz"
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "84": {
+  "program": 84,
+  "name": "Lead 5 (charang)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "85": {
+  "program": 85,
+  "name": "Lead 6 (voice)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "86": {
+  "program": 86,
+  "name": "Lead 7 (fifths)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "87": {
+  "program": 87,
+  "name": "Lead 8 (bass + lead)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "88": {
+  "program": 88,
+  "name": "Pad 1 (new age)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "better synths"
+  },
+  "pick": {
+   "cid": "8275af7412f4",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "FluidR3 Fantasia, resampled",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "resample",
+    "src": "b3177b4b0439",
+    "lo": 24,
+    "hi": 96,
+    "step": 3,
+    "stereo": true,
+    "tail": 1.5,
+    "rel": "FluidR3_Fantasia_resampled/FluidR3_Fantasia_resampled.sfz"
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "89": {
+  "program": 89,
+  "name": "Pad 2 (warm)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "468d39953dff",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "SweepPad 20190813",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Synthesizer/SweepPad/SweepPad SFZ+FLAC-20190813/SweepPad 20190813.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": -1,
+   "note": ""
+  }
+ },
+ "90": {
+  "program": 90,
+  "name": "Pad 3 (polysynth)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "57a6f2901dea",
+   "lib": "Karoryfer.Cowsynth",
+   "lib_title": "Cowsynth (Karoryfer)",
+   "title": "cowsynth fancy pad",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Cowsynth/cowsynth_fancy_pad.sfz"
+   },
+   "root": "Karoryfer/Karoryfer.Cowsynth.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "91": {
+  "program": 91,
+  "name": "Pad 4 (choir)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "58e911c6c745",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "SynthPadBowed 20190719",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Synthesizer/SynthPadBowed/SynthPadBowed SFZ+FLAC-20190719/SynthPadBowed 20190719.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "92": {
+  "program": 92,
+  "name": "Pad 5 (bowed)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "ddacf9ce3b1c",
+   "lib": "GTownChurch",
+   "lib_title": "G-Town Church Sampling Project",
+   "title": "Fake Glass Harmonica",
+   "license": "CC Sampling Plus 1.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "G-Town Church Sampling Project/Fake_Glass_Harmonica.sfz"
+   },
+   "root": "Extra/GTownChurch",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "93": {
+  "program": 93,
+  "name": "Pad 6 (metallic)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "better ver"
+  },
+  "pick": {
+   "cid": "fcba5a2da7fe",
+   "lib": "MS-Basic",
+   "lib_title": "MuseScore MS Basic",
+   "title": "Metal Pad",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-093_Metal_Pad/Metal_Pad.sfz",
+    "bank": 0,
+    "preset": 93,
+    "name": "Metal Pad"
+   },
+   "root": "Extra/MS-Basic",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "94": {
+  "program": 94,
+  "name": "Pad 7 (halo)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "better ver"
+  },
+  "pick": {
+   "cid": "43fc6c2b3aef",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Halo Pad",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-094_Halo_Pad/Halo_Pad.sfz",
+    "bank": 0,
+    "preset": 94,
+    "name": "Halo Pad"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "95": {
+  "program": 95,
+  "name": "Pad 8 (sweep)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "96": {
+  "program": 96,
+  "name": "FX 1 (rain)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "9ec706a18aa5": "find better"
+  },
+  "pick": {
+   "cid": "ee080184c1c0",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "FluidR3 Ice Rain, resampled",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "resample",
+    "src": "9ce8ddbf279a",
+    "lo": 24,
+    "hi": 96,
+    "step": 3,
+    "stereo": true,
+    "tail": 1.5,
+    "rel": "FluidR3_Ice_Rain_resampled/FluidR3_Ice_Rain_resampled.sfz"
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "97": {
+  "program": 97,
+  "name": "FX 2 (soundtrack)",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "98": {
+  "program": 98,
+  "name": "FX 3 (crystal)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "ddacf9ce3b1c": "this + 2019 glass sound and 300ms delay"
+  },
+  "pick": {
+   "cid": "890dbc5ab73e",
+   "lib": "Derived",
+   "lib_title": "Made here from the libraries above",
+   "title": "Fake Glass Harmonica + Glass 2019, no echo",
+   "license": "as its sources",
+   "remote": false,
+   "shape": "derived",
+   "listed": false,
+   "host": "derived",
+   "new": true,
+   "loc": {
+    "make": "stack",
+    "layers": [
+     {
+      "cid": "ddacf9ce3b1c",
+      "gain": 0.0
+     },
+     {
+      "cid": "3630f1a03852",
+      "gain": 0.0
+     }
+    ]
+   },
+   "root": "Extra/Derived",
+   "complete": true,
+   "octave": 0,
+   "note": "",
+   "layers": [
+    {
+     "cid": "ddacf9ce3b1c",
+     "lib": "GTownChurch",
+     "lib_title": "G-Town Church Sampling Project",
+     "title": "Fake Glass Harmonica",
+     "license": "CC Sampling Plus 1.0",
+     "remote": true,
+     "shape": "sfz",
+     "listed": false,
+     "host": "github",
+     "new": false,
+     "loc": {
+      "rel": "G-Town Church Sampling Project/Fake_Glass_Harmonica.sfz"
+     },
+     "root": "Extra/GTownChurch",
+     "octave": 1,
+     "gain": 0.0,
+     "pan": 0.0,
+     "cover": false
+    },
+    {
+     "cid": "3630f1a03852",
+     "lib": "FreePats",
+     "lib_title": "FreePats",
+     "title": "Glass-20191227",
+     "license": "CC0 1.0",
+     "remote": false,
+     "shape": "sfz",
+     "listed": false,
+     "host": "local-sfz",
+     "new": false,
+     "loc": {
+      "rel": "ChromaticPercussion/Glass/Glass-SFZ+FLAC-20191227/Glass-20191227.sfz"
+     },
+     "root": "FreePats",
+     "octave": 0,
+     "gain": 0.0,
+     "pan": 0.0,
+     "cover": false
+    }
+   ]
+  }
+ },
+ "99": {
+  "program": 99,
+  "name": "FX 4 (atmosphere)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "eh"
+  },
+  "pick": {
+   "cid": "cb0a41ec092b",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Atmosphere",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-099_Atmosphere/Atmosphere.sfz",
+    "bank": 0,
+    "preset": 99,
+    "name": "Atmosphere"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "100": {
+  "program": 100,
+  "name": "FX 5 (brightness)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "eh"
+  },
+  "pick": {
+   "cid": "3abf7c685230",
+   "lib": "MS-Basic",
+   "lib_title": "MuseScore MS Basic",
+   "title": "Brightness",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-100_Brightness/Brightness.sfz",
+    "bank": 0,
+    "preset": 100,
+    "name": "Brightness"
+   },
+   "root": "Extra/MS-Basic",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "101": {
+  "program": 101,
+  "name": "FX 6 (goblins)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "eh"
+  },
+  "pick": {
+   "cid": "502e32abc42c",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Goblin",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-101_Goblin/Goblin.sfz",
+    "bank": 0,
+    "preset": 101,
+    "name": "Goblin"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "102": {
+  "program": 102,
+  "name": "FX 7 (echoes)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "eh"
+  },
+  "pick": {
+   "cid": "297b14a6f885",
+   "lib": "MS-Basic",
+   "lib_title": "MuseScore MS Basic",
+   "title": "Echo Drops",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-102_Echo_Drops/Echo_Drops.sfz",
+    "bank": 0,
+    "preset": 102,
+    "name": "Echo Drops"
+   },
+   "root": "Extra/MS-Basic",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "103": {
+  "program": 103,
+  "name": "FX 8 (sci-fi)",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "notes": {
+   "bank": "eh"
+  },
+  "pick": {
+   "cid": "72a9380ef5fe",
+   "lib": "FluidR3-GM",
+   "lib_title": "FluidR3 GM (Frank Wen)",
+   "title": "Star Theme",
+   "license": "MIT",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "sf2",
+   "new": true,
+   "loc": {
+    "rel": "000-103_Star_Theme/Star_Theme.sfz",
+    "bank": 0,
+    "preset": 103,
+    "name": "Star Theme"
+   },
+   "root": "Extra/FluidR3-GM",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "104": {
+  "program": 104,
+  "name": "Sitar",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "42ed9161c28c",
+   "lib": "HungarianZither",
+   "lib_title": "Hungarian Zither",
+   "title": "hungarian zither mel strings poly",
+   "license": "CC0 1.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Programs/hungarian_zither_mel_strings_poly.sfz"
+   },
+   "root": "Extra/HungarianZither",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "105": {
+  "program": 105,
+  "name": "Banjo",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "74fe2ef88fab",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Strumstick / Finger",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Chordophones/Composite Chordophones/Strumstick",
+    "sub": "Finger",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "106": {
+  "program": 106,
+  "name": "Shamisen",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "150400085262",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Dan Tranh / Normal",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Chordophones/Zithers/Dan Tranh",
+    "sub": "Normal",
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "107": {
+  "program": 107,
+  "name": "Koto",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "9c73a6494274",
+   "lib": "CitharaBarbarica",
+   "lib_title": "Cithara Barbarica (medieval lyre)",
+   "title": "03-cithara barbarica nail",
+   "license": "CC0 1.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "Programs/03-cithara_barbarica_nail.sfz"
+   },
+   "root": "Extra/CitharaBarbarica",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "108": {
+  "program": 108,
+  "name": "Kalimba",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "11e053eb0959",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "Kalimba",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "source": "FreePats",
+    "path": "Ethnic/Kalimba",
+    "sub": "*.sfz",
+    "kind": "decay",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "109": {
+  "program": 109,
+  "name": "Bag pipe",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "b6379d63a6b0",
+   "lib": "FreePats",
+   "lib_title": "FreePats",
+   "title": "Bagpipe small 20260806",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Ethnic/Bagpipe-small/Bagpipe small SFZ+FLAC-20260806/Bagpipe small 20260806.sfz"
+   },
+   "root": "FreePats",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "110": {
+  "program": 110,
+  "name": "Fiddle",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "fb558846d22a",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Solo Violin / Arco Vib",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VSCO2",
+    "path": "Strings/Solo Violin",
+    "sub": "Arco Vib",
+    "kind": "sustain",
+    "standin": false,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "111": {
+  "program": 111,
+  "name": "Shanai",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "37009281f2ef",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Oboe / Vib",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Woodwinds/Oboe",
+    "sub": "Vib",
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 1,
+   "note": ""
+  }
+ },
+ "112": {
+  "program": 112,
+  "name": "Tinkle Bell",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "113": {
+  "program": 113,
+  "name": "Agogo",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "114": {
+  "program": 114,
+  "name": "Steel Drums",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "a6afff5a29e9",
+   "lib": "JLearman-SteelDrum",
+   "lib_title": "Tenor Steel Drum (Jeff Learman)",
+   "title": "jSteelDrum",
+   "license": "Unlicense",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "jSteelDrum.sfz"
+   },
+   "root": "Extra/JLearman-SteelDrum",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "115": {
+  "program": 115,
+  "name": "Woodblock",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "9354cab7a0a7",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Claves",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Idiophones/Struck Idiophones/Claves",
+    "sub": null,
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "116": {
+  "program": 116,
+  "name": "Taiko Drum",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "117": {
+  "program": 117,
+  "name": "Melodic Tom",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "ac6504a25c30",
+   "lib": "Karoryfer.GogodzeI",
+   "lib_title": "Gogodze Phu vol I (Karoryfer)",
+   "title": "Bobobo",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Gogodze_Phu_vol_I/Programs/Bobobo.sfz"
+   },
+   "root": "Karoryfer/Karoryfer.Gogodze_Phu_vol_I.v1.001",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "118": {
+  "program": 118,
+  "name": "Synth Drum",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "119": {
+  "program": 119,
+  "name": "Reverse Cymbal",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "120": {
+  "program": 120,
+  "name": "Guitar Fret Noise",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "f86c5723400a",
+   "lib": "Karoryfer.Shinyguitar",
+   "lib_title": "Shinyguitar (Karoryfer)",
+   "title": "electric noises",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "sfz",
+   "listed": false,
+   "host": "local-sfz",
+   "new": false,
+   "loc": {
+    "rel": "Shinyguitar/Programs/electric_noises.sfz"
+   },
+   "root": "Karoryfer/Karoryfer.Shinyguitar.v1.002",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "121": {
+  "program": 121,
+  "name": "Breath Noise",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "122": {
+  "program": 122,
+  "name": "Seashore",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "123": {
+  "program": 123,
+  "name": "Bird Tweet",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "124": {
+  "program": 124,
+  "name": "Telephone Ring",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "8081036f78d6",
+   "lib": "VSCO2",
+   "lib_title": "VS Chamber Orchestra 2 CE",
+   "title": "Misc 2 / NepaleseBells",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "folder",
+   "listed": false,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "path": "Miscellania Raw/Misc 2",
+    "sub": "NepaleseBells",
+    "tags": []
+   },
+   "root": "VSCO2",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "125": {
+  "program": 125,
+  "name": "Helicopter",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "126": {
+  "program": 126,
+  "name": "Applause",
+  "verdict": "keep",
+  "passed": [],
+  "note": ""
+ },
+ "127": {
+  "program": 127,
+  "name": "Gunshot",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "11b7dae575d1",
+   "lib": "VCSL",
+   "lib_title": "Versilian Community Sample Library",
+   "title": "Anvil",
+   "license": "CC0 1.0",
+   "remote": false,
+   "shape": "gm",
+   "listed": true,
+   "host": "local-folder",
+   "new": false,
+   "loc": {
+    "source": "VCSL",
+    "path": "Idiophones/Struck Idiophones/Anvil",
+    "sub": null,
+    "kind": "oneshot",
+    "standin": true,
+    "note": "",
+    "octave": 0,
+    "tags": []
+   },
+   "root": "VCSL",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ },
+ "128": {
+  "program": 128,
+  "name": "Drum kit",
+  "verdict": "replace",
+  "passed": [],
+  "note": "",
+  "pick": {
+   "cid": "0f3e992424f5",
+   "lib": "SamsSonor",
+   "lib_title": "Sam's Sonor drum kit",
+   "title": "SamsSonor",
+   "license": "CC BY-SA 4.0",
+   "remote": true,
+   "shape": "sfz",
+   "listed": false,
+   "host": "github",
+   "new": false,
+   "loc": {
+    "rel": "SamsSonor.sfz"
+   },
+   "root": "Extra/SamsSonor",
+   "complete": true,
+   "octave": 0,
+   "note": ""
+  }
+ }
+}

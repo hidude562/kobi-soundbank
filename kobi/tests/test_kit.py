@@ -29,3 +29,14 @@ def test_a_kit_with_nothing_to_drop_is_still_written(tmp_path):
     p.write_text("<control> default_path=../Drums/\n<region> sample=p.ogg key=72 loop_mode=one_shot offset=0 end=9\n")
     assert tidy_kit(str(p))['decayed'] == 1
     assert 'ampeg_decay=0.6' in p.read_text()
+
+
+def test_kit_targets_are_read_from_the_kit_sources_comments(tmp_path):
+    from kobi.kit import targets_from
+    src = tmp_path / 'Drums.sfz'
+    src.write_text('// kobi GM drum kit\n<global> ampeg_release=0.1\n'
+                   '// 81 Open Triangle: VCSL Triangles triangle1 hit (12 regions, -57.7 LUFS, gain +32.7 dB)\n'
+                   '<region> sample=a.wav key=81\n// 36 Bass Drum 1: Pick 36  (8 regions, -41.5 LUFS, gain +19.5 dB)\n'
+                   '// 99 Missing: x (0 regions, -inf LUFS, gain +0.0 dB)\n')
+    t = targets_from(str(src))
+    assert set(t) == {81, 36} and abs(t[81] + 25.0) < 1e-9 and abs(t[36] + 22.0) < 1e-9

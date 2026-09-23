@@ -45,6 +45,9 @@ def test_parse_name_vcsl_forms():
     assert p['note'] == 47 and p['vel'] == 4 and p['rr'] == 1       # a real lower-case note
     p = parse_name('D#2_vib_mf_1')
     assert (p['note'], p['vel'], p['rr']) == (39, 4, 1) and 'vib' in p['tags']
+    p = parse_name('Player_vl2_rr1_A-1')                       # octave -1: VCSL's Knight / Kawai lowest notes
+    assert (p['note'], p['vel'], p['rr'], p['mic']) == (9, 2, 1, 'player')
+    assert parse_name('Player_vl1_rr1_Bb-1')['note'] == 10 and parse_name('snare_hit-1')['note'] is None
 
 
 def test_sfz_parser_hierarchy_include_define(tmp_path):
@@ -123,6 +126,35 @@ def test_include_relative_to_root_and_builtin_samples(tmp_path):
     assert [r.pitch_keycenter for r in inst.regions] == [40, 40, 41, 41] and not inst.missing
 
 
+def test_directives_in_the_middle_of_a_line(tmp_path):
+    # Headroom Piano: the key is #define'd inside the region line, the sample name comes from an include
+    (tmp_path / 'Data').mkdir()
+    (tmp_path / 'Data' / 'sample.txt').write_text('sample=P $VEL $KEY.wav\npitch_keycenter=$KEY\n')
+    for k in (21, 24):
+        _wav(str(tmp_path / f'P L1 {k}.wav'))
+    (tmp_path / 'main.sfz').write_text(
+        '#define $VEL L1\n'
+        '<region> #define $KEY 21 lokey=21 hikey=22 #include "Data/sample.txt"\n'
+        '<region> #define $KEY 24 lokey=23 hikey=25 #include "Data/sample.txt"\n'
+        '#include "Data/none.sfz""\n')                                  # Swirly's stray quote: ignored
+    inst = load_sfz(str(tmp_path / 'main.sfz'))
+    assert not inst.missing and [(r.lokey, r.hikey, r.pitch_keycenter) for r in inst.regions] == [(21, 22, 21), (23, 25, 24)]
+    assert [os.path.basename(r.sample) for r in inst.regions] == ['P L1 21.wav', 'P L1 24.wav']
+
+
+def test_layers_crossfaded_out_at_the_defaults_are_silent(tmp_path):
+    for n in ('p', 'f', 'click'):
+        _wav(str(tmp_path / f'{n}.wav'))
+    (tmp_path / 'sax.sfz').write_text(
+        '<control> set_cc1=64\n'
+        '<region> sample=p.wav key=60 xfin_hicc1=30 xfout_locc1=30\n'         # mod-wheel blend, both audible at 64
+        '<region> sample=f.wav key=60 xfin_locc1=30 xfin_hicc1=127\n'
+        '<region> sample=click.wav key=60 xfin_hicc121=127\n')                 # key noise, faded in by CC121 (0)
+    assert [os.path.basename(r.sample) for r in default_view(load_sfz(str(tmp_path / 'sax.sfz')))] == ['p.wav', 'f.wav']
+    (tmp_path / 'gated.sfz').write_text('<region> sample=p.wav key=60 xfin_locc100=1 xfin_hicc100=2\n')
+    assert len(default_view(load_sfz(str(tmp_path / 'gated.sfz')))) == 1           # every layer faded out: kept
+
+
 def test_missing_sample_rescued_from_set(tmp_path):
     _wav(str(tmp_path / 'Samples' / 'acoustic' / 'e2.wav'))
     (tmp_path / 'Programs').mkdir()
@@ -175,3 +207,30 @@ def test_apply_gain_folds_into_region_volumes_and_is_reversible(tmp_path):
     q = tmp_path / 'old.sfz'                      # a file from before the fix: global set, regions never got it
     q.write_text('<global> volume=8.0\n<region> sample=b.wav key=61 volume=-6\n')
     assert bake(str(q)) and 'volume=2.00' in q.read_text() and not bake(str(q))
+
+
+def test_a_single_window_extra_layer_stays_off_at_its_default(tmp_path):
+    _wav(str(tmp_path / 's.wav'))
+    (tmp_path / 'u.sfz').write_text('<region> sample=s.wav key=60\n<region> sample=s.wav key=60 locc100=1 amplitude_oncc100=100\n')
+    view = default_view(load_sfz(str(tmp_path / 'u.sfz')))
+    assert len(view) == 1 and 'locc100' not in view[0].opcodes          # Black And Blue's unison voice
+
+
+def test_velocity_crossfades_become_velocity_ranges(tmp_path):
+    _wav(str(tmp_path / 's.wav'))
+    (tmp_path / 'x.sfz').write_text('<group> lovel=1 xfout_lovel=21 xfout_hivel=52\n<region> sample=s.wav key=60\n'
+                                    '<group> xfin_lovel=21 xfin_hivel=52 xfout_lovel=53 xfout_hivel=76\n<region> sample=s.wav key=60\n'
+                                    '<group> xfin_lovel=53 xfin_hivel=76\n<region> sample=s.wav key=60\n')
+    view = default_view(load_sfz(str(tmp_path / 'x.sfz')))
+    assert [(r.lovel, r.hivel) for r in view] == [(1, 36), (37, 64), (65, 127)]
+    assert [(r.lovel, r.hivel) for r in default_view(load_sfz(str(tmp_path / 'x.sfz')))] == [(1, 36), (37, 64), (65, 127)]
+
+
+def test_noise_keys_are_not_notes_of_a_melodic_program():
+    from kobi.ingest import Region, _notes_only
+    note = Region(sample='/x/sop_60.flac', lokey=60, hikey=60, pitch_keycenter=60)
+    click = Region(sample='/x/sop_k_01.flac', lokey=52, hikey=52, pitch_keycenter=52, opcodes={'group_label': 'noises key-clicks 01'})
+    fret = Region(sample='/x/noise_palm_rr1.wav', lokey=80, hikey=80, pitch_keycenter=80)
+    assert _notes_only(64, 'sustain', [note, click, fret]) == [note]
+    assert _notes_only(120, 'oneshot', [click, fret]) == [click, fret]           # an effect program keeps them
+    assert _notes_only(36, 'decay', [fret]) == [fret]                            # nothing else to play
