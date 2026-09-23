@@ -46,8 +46,8 @@ player.onprogress = (t, duration) => {};
 player.play();  player.stop();
 ```
 
-The master sits at -12 dB, sfizz's own output scale in which the bank was levelled, followed by a
-fast compressor as a safety limiter; `new KobiBank(url, { gain, limiter: false })` changes that, and
+The master sits at -24 dB (at -12, sfizz's own output scale, a loud passage peaked ~6.5 dB over full
+scale), followed by a soft clipper as a safety net; `new KobiBank(url, { gain, limiter: false })` changes that, and
 `bank.master.gain` is the volume control.  `noteOn` accepts `{ when, destination, gain }` for scheduling ahead on the AudioContext clock and
 routing a channel through its own gain node.  Browsers need a user gesture before audio starts;
 call `bank.ctx.resume()` from a click handler.

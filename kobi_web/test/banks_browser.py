@@ -48,7 +48,7 @@ try:
             print(f"{bank:20s} manifest {r['total']/1e6:5.1f} MB  piano {r['piano']:6.1f}  crash {r['crash']:6.1f}  "
                   f"snare {r['snare']:6.1f}  sfx(key36) {r['sfx']:6.1f}  trumpet {r['trumpet']:6.1f} dB  peak {r['peak']:5.1f}")
         browser.close()
-    ok = all(all(r[k] > -60 for k in ('piano', 'crash', 'snare', 'sfx', 'trumpet')) and r['peak'] < 0 for _, r in rows) and not errors
+    ok = all(all(r[k] > -72 for k in ('piano', 'crash', 'snare', 'sfx', 'trumpet')) and r['peak'] < 0 for _, r in rows) and not errors   # master at -24 dB
     print('console errors:', errors[:4])
     print('BANKS', 'PASS' if ok else 'FAIL')
     sys.exit(0 if ok else 1)

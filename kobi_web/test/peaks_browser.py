@@ -37,7 +37,7 @@ try:
         }''')
         browser.close()
     print(r)
-    ok = r['samplesOver'] == 0 and r['peakDb'] < 0 and -30 < r['chordRms'] < -8
+    ok = r['samplesOver'] == 0 and r['peakDb'] < -3 and -42 < r['chordRms'] < -20   # master at -24 dB: 3 dB of headroom
     print('PEAKS', 'PASS' if ok else 'FAIL')
     sys.exit(0 if ok else 1)
 finally:

@@ -43,9 +43,10 @@ export class KobiEngine {
     this.polyphony = opts.polyphony ?? 96;
     this.preroll = opts.preroll ?? 3;
     this.prerollTimeout = opts.prerollTimeout ?? 4000;
-    // -12 dB leaves a full mix ~4 dB of headroom; the soft clipper only catches the rare peak
+    // -24 dB: at -12 a loud passage (velocity-110 chord, drums at 120) peaked ~6.5 dB over full scale and
+    // the soft clipper squashed it to -0.8 dBFS; now it peaks at -5.5 dBFS and the clipper is a safety net
     this.master = this.ctx.createGain();
-    this.master.gain.value = opts.gain ?? dbToGain(-12);
+    this.master.gain.value = opts.gain ?? dbToGain(-24);
     const dest = opts.destination || this.ctx.destination;
     if (opts.limiter === false) this.master.connect(dest);
     else {

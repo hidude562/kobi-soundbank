@@ -131,10 +131,10 @@ export class KobiBank {
     // to the device by the browser, which is harmless
     this.ctx = opts.context || new (window.AudioContext || window.webkitAudioContext)({ latencyHint: opts.latencyHint ?? 'playback',   // see sched/kobi-engine.js
       ...(opts.sampleRate ? { sampleRate: opts.sampleRate } : {}) });
-    // -12 dB leaves a full mix ~4 dB of headroom (a single voice sits about 3.5 dB below sfizz's level);
-    // the soft clipper is a safety net for the rare peak, not a stage the mix leans on
+    // -24 dB (a single voice sits about 15.5 dB below sfizz's level): at -12 a loud passage peaked ~6.5 dB
+    // over full scale and leaned on the soft clipper; now it peaks at -5.5 dBFS, the clipper a safety net
     this.master = this.ctx.createGain();
-    this.master.gain.value = opts.gain ?? dbToGain(-12);
+    this.master.gain.value = opts.gain ?? dbToGain(-24);
     this.limiter = softClipper(this.ctx);
     this.master.connect(opts.limiter === false ? (opts.destination || this.ctx.destination) : this.limiter);
     if (opts.limiter !== false) this.limiter.connect(opts.destination || this.ctx.destination);
